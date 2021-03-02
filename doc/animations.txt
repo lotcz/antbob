@@ -1,0 +1,5 @@
+https://www.donmccurdy.com/2017/11/06/creating-animated-gltf-characters-with-mixamo-and-blender/
+
+Alice - idle - 'Bashful'
+Antbob - standing - 'Idle', arm space 85, overdrive 83
+Antbob - firing - 'Gunplay'
