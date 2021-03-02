@@ -1,6 +1,8 @@
-<html lang="en">
+<?php
+	$level = (isset($_GET['level'])) ? $_GET['level'] : 'level0';
+?><html lang="en">
 	<head>
-		<title>B.A.L.L.</title>
+		<title>Ant Bob - <?=$level ?></title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link type="text/css" rel="stylesheet" href="main.css">
@@ -43,8 +45,14 @@
 				<div id="interact_hint" class="hint hidden">
 					press <strong>E</strong> to interact
 				</div>
+				<div id="talk_hint" class="hint hidden">
+					press <strong>E</strong> to talk
+				</div>
+				<div id="exit_hint" class="hint hidden">
+					press <strong>E</strong> to enter
+				</div>
 				<div id="item_hint" class="hint hidden">
-					press <strong>E</strong> to take
+					press <strong>E</strong> to pick up
 				</div>
 			</div>
 		</div>
@@ -57,7 +65,7 @@
 
 			Ammo().then(function (AmmoLib) {
 				window.Ammo = Ammo = AmmoLib;
-				var ui = new UI('<?= (isset($_GET['level'])) ? $_GET['level'] : 'level0'?>');
+				var ui = new UI('<?=$level ?>');
 			});
 
 		</script>

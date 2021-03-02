@@ -11,6 +11,8 @@ export default class UI {
 		this.interactionName = document.getElementById('interaction_name');
 		this.interactHint = document.getElementById('interact_hint');
 		this.itemHint = document.getElementById('item_hint');
+		this.exitHint = document.getElementById('exit_hint');
+		this.talkHint = document.getElementById('talk_hint');
 		this.talkDialog = document.getElementById('talk_dialog');
 		this.talkPortrait = document.getElementById('talk_portrait');
 		this.talkName = document.getElementById('talk_name');
@@ -38,24 +40,34 @@ export default class UI {
 		this.disposePlayer();
 	}
 
-	disposePlayer() {
-		if (this.player) {
-			this.player.dispose();
-			this.player = null;
-			//this.container.innerHTML = '';
-			this.container.style.display = 'none';
-		}
-	}
-
 	showInteraction(data) {
 		this.interactionName.innerHTML = data.name;
-		this.interactHint.style.display = (data.interact && (data.interact.type != 'item')) ? 'block' : 'none';
-		this.itemHint.style.display = (data.interact && data.interact.type == 'item') ? 'block' : 'none';
-		this.interactionDialog.style.display = 'block';
+		this.hideElement(this.interactHint);
+		this.hideElement(this.itemHint);
+		this.hideElement(this.exitHint);
+		this.hideElement(this.talkHint);
+
+		if (data.interact) {
+			switch (data.interact.type) {
+				case 'item':
+					this.showElement(this.itemHint);
+					break;
+				case 'talk':
+					this.showElement(this.talkHint);
+					break;
+				case 'exit':
+					this.showElement(this.exitHint);
+					break;
+				default:
+					this.showElement(this.interactHint);
+			}
+		}
+
+		this.showElement(this.interactionDialog);
 	}
 
 	hideInteraction() {
-		this.interactionDialog.style.display = 'none';
+		this.hideElement(this.interactionDialog);
 	}
 
 	showTalkDialog(data) {
@@ -67,7 +79,7 @@ export default class UI {
 		this.talkText.innerHTML = data.interact.text;
 
 		if (data.interact.portrait) {
-			this.talkPortrait.style.display = 'block';
+			this.showElement(this.talkPortrait);
 			var portrait = this.player.scene.getObjectByName(data.interact.portrait);
 			if (portrait) {
 				var width = 100;
@@ -96,7 +108,7 @@ export default class UI {
 				this.renderer.render(this.player.scene, this.camera);
 				this.player.antbob.group.visible = true;
 			}
-		} else this.talkPortrait.style.display = 'none';
+		} else this.hideElement(this.talkPortrait);
 
 		// show
 		this.talkDialog.style.display = 'flex';
@@ -111,13 +123,29 @@ export default class UI {
 		}
 		if (this.player && !this.player.playing) this.player.play();
 		this.controls.enableMovement();
-		this.talkDialog.style.display = 'none';
+		this.hideElement(this.talkDialog);
 	}
 
 	showActiveItem(name, text) {
 		this.inventoryActiveItemName.innerHTML = name;
 		this.inventoryActiveItemText.innerHTML = text;
-		this.inventory.style.display = 'block';
+		this.showElement(this.inventory);
+	}
+
+	showElement(element) {
+		element.style.display = 'block';
+	}
+
+	hideElement(element) {
+		element.style.display = 'none';
+	}
+
+	disposePlayer() {
+		if (this.player) {
+			this.player.dispose();
+			this.player = null;
+			this.container.style.display = 'none';
+		}
 	}
 
 }
