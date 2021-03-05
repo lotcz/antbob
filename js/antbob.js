@@ -89,6 +89,7 @@ export default class AntBob {
 			this.dummy.position.copy(this.group.position);
 			this.dummy.userData.antbob = true;
 			//this.dummy.visible = false;
+			//this.player.scene.add(this.dummy);
 			this.body = this.physics.createRigidBody(this.dummy, shape, .05);
 			this.body.setFriction(10);
 			this.physics.addUserPointer(this.body, this.dummy);
