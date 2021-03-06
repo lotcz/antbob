@@ -159,10 +159,8 @@ export default class Player {
 			this.dispatch( this.events.update, { time: time, delta: time - this.prevTime } );
 		} catch ( e ) {
 			console.error( ( e.message || e ), ( e.stack || '' ) );
-			if (!this.renderer) return;
 		}
 
-		if (!this.renderer) return;
 		this.renderer.render(this.scene, this.camera);
 		this.prevTime = time;
 	}
