@@ -31,7 +31,7 @@ export default class AntBob {
 
 		this.reset();
 
-		this.animation = new AnimationHelper(this.player, 'models/anim-test.glb', (model) => this.onAnimationLoaded(model));
+		this.animation = new AnimationHelper(this.player, 'models/antbob-animations.glb', (model) => this.onAnimationLoaded(model));
 
 		this.group = new THREE.Group();
 		var entry = this.player.scene.getObjectByName('Exit');
@@ -59,7 +59,45 @@ export default class AntBob {
 		this.rotationSpeed = DEFAULT_ROTATION_SPEED;
 	}
 
+	processMaterials(model) {
+		const black = new THREE.MeshPhongMaterial({color:0x050505, skinning:true});
+		const white = new THREE.MeshBasicMaterial({color:0xF5F5F5, skinning:true});
+		const green = new THREE.MeshLambertMaterial({color:0x0A3701, skinning:true});
+		const blue = new THREE.MeshLambertMaterial({color:0x0117C1, skinning:true});
+
+		model.traverse(function (object) {
+			if (object.isMesh) {
+				switch(object.name) {
+					case "AntennaBulb":
+					case "AntennaTentacle":
+					case "Arm":
+					case "Butt":
+					case "Knee":
+					case "Elbow":
+					case "Head":
+					case "Hand":
+					case "Foot":
+					case "LowerLeg":
+						object.material = black;
+						break;
+					case "Torso":
+					case "Sphere":
+					case "Sleeve":
+						object.material = green;
+						break;
+					case "Shorts":
+						object.material = blue;
+						break;
+					case "Eye":
+						object.material = white;
+						break;
+				}
+			}
+		});
+	}
+
 	onAnimationLoaded(model) {
+		this.processMaterials(model);
 		this.model = model;
 		this.group.add(model);
 
@@ -141,24 +179,27 @@ export default class AntBob {
 				STATE_JUMPING :
 				(this.controls.moveForward) ? STATE_RUNNING : STATE_FALLING;
 
+//				'Walking', 'Jump', 'Falling'
+//
+//
 		// go to running
 		if (state === STATE_RUNNING && this.state !== STATE_RUNNING) {
 			this.animation.playForward();
-			this.animation.activateAction('Rumba', ANIMATION_TRANSITION_DURATION, false);
+			this.animation.activateAction('Running', ANIMATION_TRANSITION_DURATION, false);
 			this.body.setFriction(0);
 		}
 
 		// go to running backwards
 		if (state === STATE_RUNNING_BACKWARDS && this.state !== STATE_RUNNING_BACKWARDS) {
 			this.animation.playBackwards();
-			this.animation.activateAction('Rumba', ANIMATION_TRANSITION_DURATION, false);
+			this.animation.activateAction('Running', ANIMATION_TRANSITION_DURATION, false);
 			this.body.setFriction(0);
 		}
 
 		// go to standing
 		if (state === STATE_STANDING && this.state !== STATE_STANDING) {
 			this.animation.playForward();
-			this.animation.activateAction('Jump', ANIMATION_TRANSITION_DURATION, false);
+			this.animation.activateAction('Stand', ANIMATION_TRANSITION_DURATION, false);
 			this.body.setFriction(5);
 			this.idleTimeout = IDLE_TIMEOUT;
 		}
@@ -166,7 +207,7 @@ export default class AntBob {
 		// go to falling
 		if (state === STATE_FALLING && this.state !== STATE_FALLING) {
 			this.animation.playForward();
-			this.animation.activateAction('WalkAround', ANIMATION_TRANSITION_DURATION, false);
+			this.animation.activateAction('Stand', ANIMATION_TRANSITION_DURATION, false);
 			this.body.setFriction(5);
 		}
 
@@ -174,7 +215,7 @@ export default class AntBob {
 		if (state === STATE_STANDING && (this.gun === null)) {
 			this.animation.playForward();
 			if (this.idleTimeout <= 0 ) {
-				this.animation.activateAction('WalkAround', ANIMATION_TRANSITION_DURATION, false);
+				this.animation.activateAction('Idle', ANIMATION_TRANSITION_DURATION, false);
 			 	state = STATE_IDLE;
 			} else
 				this.idleTimeout -= deltaTime;

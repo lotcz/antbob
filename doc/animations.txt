@@ -1,5 +1,16 @@
+File → Import → FBX.
+Under Main, select Manual Orientation.
+Under Armatures, select Automatic Bone Orientation.
+rename this object as Character, and rename its animation as TPose.
+
+delete armatures except character
+Dope Sheet → Action Editor --> stash clips
+Export to GLTF
+
 https://www.donmccurdy.com/2017/11/06/creating-animated-gltf-characters-with-mixamo-and-blender/
+https://github.com/funwithtriangles/blender-to-threejs-export-guide/blob/master/readme.md
 
 Alice - idle - 'Bashful'
-Antbob - standing - 'Idle', arm space 85, overdrive 83
+Antbob - standing - 'Idle',
+AntBob - idle - 'Happy Idle' arm space 85, overdrive 50
 Antbob - firing - 'Gunplay'
