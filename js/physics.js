@@ -1,4 +1,7 @@
 const DISABLE_DEACTIVATION = 4;
+const STEP_SIMULATION = 1;
+const DEFAULT_GRAVITY = -9.8;
+const DEFAULT_MARGIN = 0.001;
 
 export default class PhysicsHelper {
 
@@ -14,7 +17,7 @@ export default class PhysicsHelper {
 		//physicsWorld = new Ammo.btSoftRigidDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration, softBodySolver);
 		this.physicsWorld = new Ammo.btDiscreteDynamicsWorld(this.dispatcher, broadphase, solver, collisionConfiguration);
 
-		if (gravity === undefined) gravity = new Ammo.btVector3(0, -9.8, 0);
+		if (gravity === undefined) gravity = new Ammo.btVector3(0, DEFAULT_GRAVITY, 0);
 		this.physicsWorld.setGravity(gravity);
 
 		//physicsWorld.getWorldInfo().set_m_gravity(new Ammo.btVector3( 0, gravityConstant, 0));
@@ -24,7 +27,7 @@ export default class PhysicsHelper {
 
 		this.rigidBodies = [];
 
-		if (margin === undefined) margin = 0.05;
+		if (margin === undefined) margin = DEFAULT_MARGIN;
 		this.margin = margin;
 
 		// this disables collision detection for now
@@ -128,7 +131,7 @@ export default class PhysicsHelper {
 		var deltaTime = event.delta;
 
 		// Step world
-		this.physicsWorld.stepSimulation( deltaTime, 10 );
+		this.physicsWorld.stepSimulation( deltaTime, STEP_SIMULATION);
 
 		// Update rigid bodies
 		for (let i = this.rigidBodies.length - 1; i >= 0; i-- ) {

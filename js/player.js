@@ -102,9 +102,7 @@ export default class Player {
 		this.userdata = new UserdataHelper(this.scene);
 
 		// PHYSICS
-		const gravity = new Ammo.btVector3(0, -2, 0);
-		const margin = 0.001;
-		var physics = this.physics = new PhysicsHelper(this, gravity, margin);
+		var physics = this.physics = new PhysicsHelper(this);
 		this.events.update.push((e) => physics.update(e));
 
 		// BOB

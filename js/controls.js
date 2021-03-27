@@ -9,7 +9,11 @@ export default class Controls {
 	}
 
 	anyMovement() {
-		return this.moveForward || this.moveLeft || this.moveBackward || this.moveRight;
+		return this.moveForward || this.moveBackward;
+	}
+
+	anyTurning() {
+		return this.moveLeft || this.moveRight;
 	}
 
 	onKeyDown(event) {

@@ -9,13 +9,15 @@ const STATE_RUNNING = 2;
 const STATE_JUMPING = 3;
 const STATE_FALLING = 4;
 const STATE_RUNNING_BACKWARDS = 5;
-const ANIMATION_TRANSITION_DURATION = 1000;
+const ANIMATION_TRANSITION_DURATION = 400;
 const IDLE_TIMEOUT = 3000;
-const JUMP_TIMEOUT = 500;
-const JUMP_ENERGY = 150;
+const JUMP_TIMEOUT = 700;
+const JUMP_ENERGY = 200;
 const DUMMY_BODY_SIZE = 0.5;
-const DEFAULT_MOVEMENT_SPEED = 0.5;
-const DEFAULT_ROTATION_SPEED = 0.005;
+const DEFAULT_BOB_WEIGHT = 10;
+const DEFAULT_MOVEMENT_SPEED = 4;
+const DEFAULT_JUMP_SPEED = 2;
+const DEFAULT_ROTATION_SPEED = 0.004;
 const ZERO_VECTOR = new THREE.Vector3(0, 0, 0);
 const X_AXIS = new THREE.Vector3(1, 0, 0);
 const Y_AXIS = new THREE.Vector3(0, 1, 0);
@@ -47,7 +49,7 @@ export default class AntBob {
 	reset() {
 		this.direction = X_AXIS.clone();
 		this.onGround = true;
-		this.state = STATE_STANDING;
+		this.state = null;
 		this.jumping = 0;
 		this.jumpTimeout = 0;
 		this.gun = null;
@@ -102,15 +104,12 @@ export default class AntBob {
 		this.group.add(model);
 
 		var radius = DUMMY_BODY_SIZE;
-		//var shape = new Ammo.btSphereShape(radius);
 		var shape = new Ammo.btBoxShape(new Ammo.btVector3(radius * 0.5, radius * 0.5, radius * 0.5));
-		//this.dummy = new THREE.Mesh(new THREE.IcosahedronGeometry(radius, 3), new THREE.MeshBasicMaterial({color:0xFFFFFF}));
 		this.dummy = new THREE.Mesh(new THREE.BoxGeometry(radius, radius, radius), new THREE.MeshBasicMaterial({color:0xFFFFFF}));
 		this.dummy.position.copy(this.group.position);
 		this.dummy.userData.antbob = true;
-		//this.dummy.visible = false;
 		//this.player.scene.add(this.dummy);
-		this.body = this.physics.createRigidBody(this.dummy, shape, .05);
+		this.body = this.physics.createRigidBody(this.dummy, shape, DEFAULT_BOB_WEIGHT);
 		this.body.setFriction(10);
 		this.physics.addUserPointer(this.body, this.dummy);
 
@@ -134,7 +133,7 @@ export default class AntBob {
 		if (this.jumping <= 0) {
 			if (this.lastDummyPosition) {
 				var diff = this.lastDummyPosition.y - this.dummy.position.y;
-				this.onGround = (diff < 0.01);
+				this.onGround = (diff < 0.001);
 			}
 		}
 
@@ -168,7 +167,7 @@ export default class AntBob {
 		}
 
 		var state = (this.onGround) ?
-			(this.controls.moveForward || this.controls.moveBackward) ?
+			(this.controls.anyMovement()) ?
 				(this.controls.moveForward) ?
 					STATE_RUNNING :
 					STATE_RUNNING_BACKWARDS :
@@ -177,43 +176,47 @@ export default class AntBob {
 					STATE_STANDING :
 			(this.jumping > 0) ?
 				STATE_JUMPING :
-				(this.controls.moveForward) ? STATE_RUNNING : STATE_FALLING;
+				(this.controls.moveForward) ?
+					STATE_RUNNING :
+					(this.controls.moveBackward) ?
+						STATE_RUNNING_BACKWARDS :
+						STATE_FALLING;
 
-//				'Walking', 'Jump', 'Falling'
-//
-//
+//		'Walking', 'Jump', 'Falling'
+
 		// go to running
 		if (state === STATE_RUNNING && this.state !== STATE_RUNNING) {
-			this.animation.playForward();
 			this.animation.activateAction('Running', ANIMATION_TRANSITION_DURATION, false);
 			this.body.setFriction(0);
 		}
 
 		// go to running backwards
 		if (state === STATE_RUNNING_BACKWARDS && this.state !== STATE_RUNNING_BACKWARDS) {
-			this.animation.playBackwards();
-			this.animation.activateAction('Running', ANIMATION_TRANSITION_DURATION, false);
+			this.animation.activateAction('Backwards', ANIMATION_TRANSITION_DURATION, false);
 			this.body.setFriction(0);
 		}
 
 		// go to standing
 		if (state === STATE_STANDING && this.state !== STATE_STANDING) {
-			this.animation.playForward();
 			this.animation.activateAction('Stand', ANIMATION_TRANSITION_DURATION, false);
 			this.body.setFriction(5);
 			this.idleTimeout = IDLE_TIMEOUT;
 		}
 
+		// go to jumping
+		if (state === STATE_JUMPING && this.state !== STATE_JUMPING) {
+			this.animation.activateAction('Jump', ANIMATION_TRANSITION_DURATION / 4, false);
+			this.body.setFriction(0);
+		}
+
 		// go to falling
 		if (state === STATE_FALLING && this.state !== STATE_FALLING) {
-			this.animation.playForward();
-			this.animation.activateAction('Stand', ANIMATION_TRANSITION_DURATION, false);
-			this.body.setFriction(5);
+			this.animation.activateAction('Fall', ANIMATION_TRANSITION_DURATION * 1.5, false);
+			this.body.setFriction(0);
 		}
 
 		// go to idle
 		if (state === STATE_STANDING && (this.gun === null)) {
-			this.animation.playForward();
 			if (this.idleTimeout <= 0 ) {
 				this.animation.activateAction('Idle', ANIMATION_TRANSITION_DURATION, false);
 			 	state = STATE_IDLE;
@@ -286,12 +289,14 @@ export default class AntBob {
 		}
 
 		// PHYSICS MOVEMENT SIMULATION
-		next.multiplyScalar(this.movementSpeed);
 		if (this.jumping > 0) {
-			next.multiplyScalar(1.5);
+			next.multiplyScalar(DEFAULT_JUMP_SPEED);
 			this.body.setLinearVelocity(new Ammo.btVector3(next.x, next.y, next.z));
 		}
-		else if (this.onGround) this.body.setLinearVelocity(new Ammo.btVector3(next.x, next.y, next.z));
+		else if (this.onGround) {
+			next.multiplyScalar(this.movementSpeed);
+			this.body.setLinearVelocity(new Ammo.btVector3(next.x, next.y, next.z));
+		}
 	}
 
 	setGun(gundata) {
