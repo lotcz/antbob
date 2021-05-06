@@ -1,5 +1,6 @@
 const DISABLE_DEACTIVATION = 4;
 const STEP_SIMULATION = 1;
+const PHYSICS_SPEED = 0.01;
 const DEFAULT_GRAVITY = -9.8;
 const DEFAULT_MARGIN = 0.001;
 
@@ -131,7 +132,7 @@ export default class PhysicsHelper {
 		var deltaTime = event.delta;
 
 		// Step world
-		this.physicsWorld.stepSimulation( deltaTime, STEP_SIMULATION);
+		this.physicsWorld.stepSimulation(deltaTime * PHYSICS_SPEED, STEP_SIMULATION);
 
 		// Update rigid bodies
 		for (let i = this.rigidBodies.length - 1; i >= 0; i-- ) {
