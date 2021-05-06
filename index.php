@@ -6,6 +6,7 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link type="text/css" rel="stylesheet" href="main.css">
+		<link rel="shortcut icon" type="image/jpg" href="favicon.ico"/>
 		<script src="node_modules/three/examples/js/libs/ammo.wasm.js"></script>
 	</head>
 	<body>

@@ -1,6 +1,7 @@
 import PhysicsHelper from './physics.js';
 import UserdataHelper from './userdata.js';
 import AnimationHelper from './animation.js';
+import SoundHelper from './sound.js';
 import InteractionHelper from './interaction.js';
 import Controls from './controls.js';
 import AntBob from './antbob.js';
@@ -50,8 +51,8 @@ export default class Player {
 		if ( this.project.toneMappingExposure !== undefined ) this.renderer.toneMappingExposure = this.project.toneMappingExposure;
 		if ( this.project.physicallyCorrectLights !== undefined ) this.renderer.physicallyCorrectLights = this.project.physicallyCorrectLights;
 
-		this.setScene( this.loader.parse( json.scene ) );
-		this.setCamera( this.loader.parse( json.camera ) );
+		this.setScene(this.loader.parse(json.scene));
+		this.setCamera(this.loader.parse(json.camera));
 
 		this.events = {
 			init: [],
@@ -102,9 +103,7 @@ export default class Player {
 		this.userdata = new UserdataHelper(this.scene);
 
 		// PHYSICS
-		const gravity = new Ammo.btVector3(0, -2, 0);
-		const margin = 0.001;
-		var physics = this.physics = new PhysicsHelper(this, gravity, margin);
+		var physics = this.physics = new PhysicsHelper(this);
 		this.events.update.push((e) => physics.update(e));
 
 		// BOB
@@ -113,6 +112,10 @@ export default class Player {
 
 		var interaction = this.interaction = new InteractionHelper(this, this.controls, this.antbob, this.ui);
 		this.events.update.push((e) => interaction.update(e));
+
+		// SOUND
+		this.sound = new SoundHelper('sound/forest_1.mp3');
+		this.sound.play();
 
 		this.onResize = () => this.setSize(this.dom.offsetWidth, this.dom.offsetHeight);
 		this.onResize();
@@ -159,10 +162,8 @@ export default class Player {
 			this.dispatch( this.events.update, { time: time, delta: time - this.prevTime } );
 		} catch ( e ) {
 			console.error( ( e.message || e ), ( e.stack || '' ) );
-			if (!this.renderer) return;
 		}
 
-		if (!this.renderer) return;
 		this.renderer.render(this.scene, this.camera);
 		this.prevTime = time;
 	}

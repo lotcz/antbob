@@ -1,24 +1,40 @@
 import * as THREE from '../node_modules/three/build/three.module.js';
 
+import {
+	BobState,
+	STATE_STANDING,
+	STATE_IDLE,
+	STATE_RUNNING,
+	STATE_JUMPING,
+	STATE_FALLING,
+	STATE_RUNNING_BACKWARDS,
+	ANIMATION_TRANSITION_DURATION,
+	FRICTION_STATIC,
+	FRICTION_MOVEMENT,
+	ZERO_VECTOR,
+	X_AXIS,
+	Y_AXIS,
+	Y_AXIS_INVERTED,
+	Z_AXIS,
+	MOVEMENT_SPEED
+} from './bobstate/BobState.js';
+
+import StateStanding from './bobstate/StateStanding.js';
+import StateRunning from './bobstate/StateRunning.js';
+import StateRunningBackwards from './bobstate/StateRunningBackwards.js';
+import StateJumping from './bobstate/StateJumping.js';
+import StateIdle from './bobstate/StateIdle.js';
+import StateFalling from './bobstate/StateFalling.js';
+
 import Vehicle from './vehicle.js';
 import AnimationHelper from './animation.js';
+import SoundHelper from './sound.js';
 
-const STATE_STANDING = 0;
-const STATE_IDLE = 1;
-const STATE_RUNNING = 2;
-const STATE_JUMPING = 3;
-const STATE_FALLING = 4;
-const STATE_RUNNING_BACKWARDS = 5;
-const IDLE_TIMEOUT = 3000;
-const JUMP_TIMEOUT = 500;
-const JUMP_ENERGY = 150;
-const DUMMY_BODY_SIZE = 0.5;
-const DEFAULT_MOVEMENT_SPEED = 0.5;
-const DEFAULT_ROTATION_SPEED = 0.005;
-const ZERO_VECTOR = new THREE.Vector3(0, 0, 0);
-const X_AXIS = new THREE.Vector3(1, 0, 0);
-const Y_AXIS = new THREE.Vector3(0, 1, 0);
-const Z_AXIS = new THREE.Vector3(0, 0, 1);
+const DUMMY_BODY_SIZE = 0.25;
+const HEIGHT_DELTA = DUMMY_BODY_SIZE * 1.5;
+const BOB_WEIGHT = 0.1;
+
+const ROTATION_SPEED = 0.004;
 
 export default class AntBob {
 
@@ -28,11 +44,15 @@ export default class AntBob {
 		this.controls = controls;
 		this.onLoaded = onloaded;
 
-		this.reset();
+		this.direction = X_AXIS.clone();
+		this.onGround = true;
+		this.jumpTimeout = 0;
+		this.state = null;
+		this.gun = null;
+		this.firing = 0;
+		this.collisionRequestSent = false;
 
-		this.standingAnimation = new AnimationHelper(this.player, 'models/antbob-standing.gltf?v=2', (model) => this.onStandingAnimLoaded(model));
-		this.runningAnimation = new AnimationHelper(this.player, 'models/antbob-running.gltf?v=2', (model) => this.onRunningAnimLoaded(model));
-		this.idleAnimation = new AnimationHelper(this.player, 'models/antbob-idle.gltf?v=2', (model) => this.onIdleAnimLoaded(model));
+		this.animation = new AnimationHelper(this.player, 'models/antbob-animations.glb', (model) => this.onAnimationLoaded(model));
 
 		this.group = new THREE.Group();
 		var entry = this.player.scene.getObjectByName('Exit');
@@ -42,60 +62,85 @@ export default class AntBob {
 		}
 		this.player.scene.add(this.group);
 
+		// STATES
+		this.states = []
+		this.states[STATE_STANDING] = new StateStanding(this);
+		this.states[STATE_IDLE] = new StateIdle(this);
+		this.states[STATE_RUNNING] = new StateRunning(this);
+		this.states[STATE_JUMPING] = new StateJumping(this);
+		this.states[STATE_FALLING] = new StateFalling(this);
+		this.states[STATE_RUNNING_BACKWARDS] = new StateRunningBackwards(this);
+
+		// SOUND
+		this.dropSound = new SoundHelper('sound/jump_drop.ogg', false);
+		this.shootSound = new SoundHelper('sound/shoot.ogg', false);
+
 		this.loaded = false;
 	}
 
-	reset() {
-		this.direction = X_AXIS.clone();
-		this.onGround = true;
-		this.state = STATE_STANDING;
-		this.jumping = 0;
-		this.jumpTimeout = 0;
-		this.gun = null;
-		this.firing = 0;
-		this.idleTimeout = IDLE_TIMEOUT;
-		this.jumpingDirection = null;
-		this.collisionRequestSent = false;
-		this.movementSpeed = DEFAULT_MOVEMENT_SPEED;
-		this.rotationSpeed = DEFAULT_ROTATION_SPEED;
+	processMaterials(model) {
+		const black = new THREE.MeshPhongMaterial({color:0x050505, skinning:true});
+		const white = new THREE.MeshBasicMaterial({color:0xF5F5F5, skinning:true});
+		const green = new THREE.MeshLambertMaterial({color:0x0A3701, skinning:true});
+		const blue = new THREE.MeshLambertMaterial({color:0x0117C1, skinning:true});
+
+		model.traverse(function (object) {
+			if (object.isMesh) {
+				switch(object.name) {
+					case "AntennaBulb":
+					case "AntennaTentacle":
+					case "Arm":
+					case "Butt":
+					case "Knee":
+					case "Elbow":
+					case "Head":
+					case "Hand":
+					case "Foot":
+					case "LowerLeg":
+						object.material = black;
+						break;
+					case "Torso":
+					case "Sphere":
+					case "Sleeve":
+						object.material = green;
+						break;
+					case "Shorts":
+						object.material = blue;
+						break;
+					case "Eye":
+						object.material = white;
+						break;
+				}
+			}
+		});
 	}
 
-	onRunningAnimLoaded(model) {
-		this.runningModel = model;
+	onAnimationLoaded(model) {
+		this.processMaterials(model);
+		this.model = model;
 		this.group.add(model);
-		this.onAnimloaded();
+
+		//var shape = new Ammo.btBoxShape(new Ammo.btVector3(DUMMY_BODY_SIZE * 0.5, DUMMY_BODY_SIZE * 0.5, DUMMY_BODY_SIZE * 0.5));
+		//this.dummy = new THREE.Mesh(new THREE.BoxGeometry(DUMMY_BODY_SIZE, DUMMY_BODY_SIZE, DUMMY_BODY_SIZE), new THREE.MeshBasicMaterial({color:0xFFFFFF}));
+		var shape = new Ammo.btSphereShape(DUMMY_BODY_SIZE);
+		this.dummy = new THREE.Mesh(new THREE.IcosahedronGeometry(DUMMY_BODY_SIZE, 3), new THREE.MeshBasicMaterial({color:0xFFFFFF}));
+		this.dummy.position.copy(this.group.position);
+		this.dummy.userData.antbob = true;
+		//this.player.scene.add(this.dummy);
+		this.body = this.physics.createRigidBody(this.dummy, shape, BOB_WEIGHT);
+		this.body.setRestitution(0);
+		this.physics.addUserPointer(this.body, this.dummy);
+
+		this.changeState(STATE_STANDING);
+
+		this.loaded = true;
+		if (this.onLoaded) this.onLoaded();
 	}
 
-	onStandingAnimLoaded(model) {
-		this.standingModel = model;
-		this.group.add(model);
-		this.onAnimloaded();
-	}
-
-	onIdleAnimLoaded(model) {
-		this.idleModel = model;
-		this.group.add(model);
-		this.onAnimloaded();
-	}
-
-	onAnimloaded(model) {
-		if (this.runningModel && this.idleModel && this.standingModel) {
-			this.loaded = true;
-			var radius = DUMMY_BODY_SIZE;
-			//var shape = new Ammo.btSphereShape(radius);
-			var shape = new Ammo.btBoxShape(new Ammo.btVector3(radius * 0.5, radius * 0.5, radius * 0.5));
-			//this.dummy = new THREE.Mesh(new THREE.IcosahedronGeometry(radius, 3), new THREE.MeshBasicMaterial({color:0xFFFFFF}));
-			this.dummy = new THREE.Mesh(new THREE.BoxGeometry(radius, radius, radius), new THREE.MeshBasicMaterial({color:0xFFFFFF}));
-			this.dummy.position.copy(this.group.position);
-			this.dummy.userData.antbob = true;
-			//this.dummy.visible = false;
-			//this.player.scene.add(this.dummy);
-			this.body = this.physics.createRigidBody(this.dummy, shape, .05);
-			this.body.setFriction(10);
-			this.physics.addUserPointer(this.body, this.dummy);
-
-			if (this.onLoaded) this.onLoaded();
-		}
+	changeState(state_name) {
+		if (this.state) this.state.deactivate();
+		this.state = this.states[state_name];
+		this.state.activate();
 	}
 
 	update(event) {
@@ -108,143 +153,42 @@ export default class AntBob {
 			return;
 		}
 
-		if (this.controls.moveLeft) this.direction.applyAxisAngle(Y_AXIS, this.rotationSpeed * deltaTime);
-		if (this.controls.moveRight) this.direction.applyAxisAngle(Y_AXIS, - this.rotationSpeed * deltaTime);
+		if (this.controls.moveLeft) this.direction.applyAxisAngle(Y_AXIS, ROTATION_SPEED * deltaTime);
+		if (this.controls.moveRight) this.direction.applyAxisAngle(Y_AXIS, - ROTATION_SPEED * deltaTime);
 
-		if (this.jumping <= 0) {
-			if (this.lastDummyPosition) {
-				var diff = this.lastDummyPosition.y - this.dummy.position.y;
-				this.onGround = (diff < 0.01);
-			}
-		}
-
-		this.lastDummyPosition = this.dummy.position.clone();
-
-		var next = ZERO_VECTOR.clone();
-
-		if (this.onGround) {
-			this.jumping = 0;
-			if (this.controls.moveForward)
-				next = next.add(this.direction);
-			else if (this.controls.moveBackward)
-				next = next.sub(this.direction);
-
-			if (this.controls.jump && this.jumpTimeout <= 0) {
-				this.jumpingDirection = next;
-				this.onGround = false;
-				this.jumpTimeout = JUMP_TIMEOUT;
-				this.jumping = JUMP_ENERGY;
-			}
-		}
-
-		if (this.jumping > 0) {
-			next.add(this.jumpingDirection);
-			next.add(Y_AXIS.clone().multiplyScalar(this.jumping / JUMP_ENERGY));
-			this.jumping -= deltaTime;
-		 }
-
-		if (this.jumpTimeout > 0) {
-			this.jumpTimeout -= deltaTime;
-		}
-
-		var state = (this.onGround) ?
-			(this.controls.moveForward || this.controls.moveBackward) ?
-				(this.controls.moveForward) ?
-					STATE_RUNNING :
-					STATE_RUNNING_BACKWARDS :
-				(this.state === STATE_IDLE) ?
-					STATE_IDLE :
-					STATE_STANDING :
-			(this.jumping > 0) ?
-				STATE_JUMPING :
-				(this.controls.moveForward) ? STATE_RUNNING : STATE_FALLING;
-
-		// go to running
-		if (state === STATE_RUNNING && this.state !== STATE_RUNNING) {
-			this.body.setFriction(0);
-			//if (this.gun) this.gun.position.set(0, 0, -0.06);
-			//if (this.gun) this.gun.quaternion.set(0.1, 0, 0, 1);
-		}
-
-		// go to running backwards
-		if (state === STATE_RUNNING_BACKWARDS && this.state !== STATE_RUNNING_BACKWARDS) {
-			this.body.setFriction(0);
-			//if (this.gun) this.gun.position.set(0, 0, -0.06);
-			//if (this.gun) this.gun.quaternion.set(0.1, 0, 0, 1);
-		}
-
-		// go to standing
-		if (state === STATE_STANDING && this.state !== STATE_STANDING) {
-			this.body.setFriction(5);
-			this.idleTimeout = IDLE_TIMEOUT;
-			//if (this.gun) this.gun.position.set(0, 0, 0);
-			//if (this.gun) this.gun.quaternion.set(0, 0, 0, 1);
-		}
-
-		// go to falling
-		if (state === STATE_FALLING && this.state !== STATE_FALLING) {
-			this.body.setFriction(5);
-			//if (this.gun) this.gun.position.set(0, 0, 0);
-			//if (this.gun) this.gun.quaternion.set(0, 0, 0, 1);
-		}
-
-		// go to idle
-		if (state === STATE_STANDING && (this.gun === null)) {
-			if (this.idleTimeout <= 0 ) state = STATE_IDLE;
-			this.idleTimeout -= deltaTime;
-		}
-
-		this.state = state;
-
-		// SELECT ANIMATION AND MODEL
-		var animation;
-
-		if (this.state === STATE_RUNNING || this.state === STATE_JUMPING || this.state === STATE_RUNNING_BACKWARDS) {
-			animation = this.runningAnimation;
-
-			if (this.state === STATE_RUNNING_BACKWARDS)
-				animation.playBackwards()
-			else
-				animation.playForward();
-
-			// animate backpack
-			if (this.gun) this.gun.position.y = 0.02 + Math.sin(event.time / 50) * 0.02;
-		} else if (this.state === STATE_IDLE) {
-			animation = this.idleAnimation;
+		// DETECT WHETHER ON GROUND
+		var raycaster = new THREE.Raycaster(this.dummy.position, Y_AXIS_INVERTED, 0.01, 10);
+		var intersections = raycaster.intersectObjects(this.physics.allBodies, false);
+		//this.player.scene.add(new THREE.ArrowHelper(raycaster.ray.direction, raycaster.ray.origin, 300, 0xff0000) );
+		if (intersections.length > 0) {
+			this.onGround = intersections[0].distance <= HEIGHT_DELTA;
 		} else {
-			animation = this.standingAnimation;
+			this.onGround = false;
 		}
-
-		var model = animation.model;
-
-		this.idleModel.visible = false;
-		this.runningModel.visible = false;
-		this.standingModel.visible = false;
-		model.visible = true;
 
 		// MODEL MOVEMENT
 		this.group.position.x = this.dummy.position.x;
 		this.group.position.z = this.dummy.position.z;
-		this.group.position.y = this.dummy.position.y - (DUMMY_BODY_SIZE / 2);
+		this.group.position.y = this.dummy.position.y - DUMMY_BODY_SIZE;
 
 		// MODEL ORIENTATION
 		this.group.lookAt(this.group.position.clone().add(this.direction));
 
 		// CAMERA
-		if (this.player.camera.userData && this.player.camera.userData.type == "follow") {
+		if (this.player.camera.userData && this.player.camera.userData.type == 'follow') {
 			var pos = this.player.camera.userData.position;
 			this.player.camera.position.set(this.group.position.x + pos.x, this.group.position.y + pos.y, this.group.position.z + pos.z);
 		}
 		this.player.camera.lookAt(this.group.position);
 
 		// MODEL ANIMATION
-		animation.update(event);
+		this.animation.update(event);
 
 		// FIRE
 		if (this.gun && this.controls.fire) {
 			if (this.firing <= 0) {
+				this.shootSound.play();
 				this.firing = 500;
-				// fire
 				var bulletSize = Math.max(Math.random(), 0.2) * 0.4;
 				var bullet, bulletBody;
 				var color = new THREE.Color(Math.random(), Math.random(), Math.random());
@@ -280,15 +224,12 @@ export default class AntBob {
 			this.firing -= deltaTime;
 		}
 
-		//console.log(deltaTime);
-
-		// PHYSICS MOVEMENT SIMULATION
-		next.multiplyScalar(this.movementSpeed);
-		if (this.jumping > 0) {
-			next.multiplyScalar(1.5);
-			this.body.setLinearVelocity(new Ammo.btVector3(next.x, next.y, next.z));
+		if (this.jumpTimeout > 0) {
+			this.jumpTimeout -= deltaTime;
 		}
-		else if (this.onGround) this.body.setLinearVelocity(new Ammo.btVector3(next.x, next.y, next.z));
+
+		// STATE UPDATE
+		this.state.update(event);
 	}
 
 	setGun(gundata) {

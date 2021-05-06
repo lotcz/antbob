@@ -1,4 +1,8 @@
 const DISABLE_DEACTIVATION = 4;
+const STEP_SIMULATION = 1;
+const PHYSICS_SPEED = 0.01;
+const DEFAULT_GRAVITY = -9.8;
+const DEFAULT_MARGIN = 0.01;
 
 export default class PhysicsHelper {
 
@@ -14,7 +18,7 @@ export default class PhysicsHelper {
 		//physicsWorld = new Ammo.btSoftRigidDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration, softBodySolver);
 		this.physicsWorld = new Ammo.btDiscreteDynamicsWorld(this.dispatcher, broadphase, solver, collisionConfiguration);
 
-		if (gravity === undefined) gravity = new Ammo.btVector3(0, -9.8, 0);
+		if (gravity === undefined) gravity = new Ammo.btVector3(0, DEFAULT_GRAVITY, 0);
 		this.physicsWorld.setGravity(gravity);
 
 		//physicsWorld.getWorldInfo().set_m_gravity(new Ammo.btVector3( 0, gravityConstant, 0));
@@ -24,7 +28,9 @@ export default class PhysicsHelper {
 
 		this.rigidBodies = [];
 
-		if (margin === undefined) margin = 0.05;
+		this.allBodies = [];
+
+		if (margin === undefined) margin = DEFAULT_MARGIN;
 		this.margin = margin;
 
 		// this disables collision detection for now
@@ -115,10 +121,17 @@ export default class PhysicsHelper {
 		if (threeObject.userData.physics && threeObject.userData.physics.mass == 0)
 			this.addUserPointer(body, threeObject);
 
-		if ( mass > 0 ) {
-			this.rigidBodies.push( threeObject );
+		this.allBodies.push(threeObject);
+
+		if (mass > 0) {
+			this.rigidBodies.push(threeObject);
 			body.setActivationState(DISABLE_DEACTIVATION);
 		}
+
+		// EXPERIMENT
+		body.setRestitution(0.8);
+		body.setFriction(1);
+		body.setRollingFriction(0.05);
 
 		this.physicsWorld.addRigidBody(body);
 		return body;
@@ -128,7 +141,7 @@ export default class PhysicsHelper {
 		var deltaTime = event.delta;
 
 		// Step world
-		this.physicsWorld.stepSimulation( deltaTime, 10 );
+		this.physicsWorld.stepSimulation(deltaTime * PHYSICS_SPEED, STEP_SIMULATION);
 
 		// Update rigid bodies
 		for (let i = this.rigidBodies.length - 1; i >= 0; i-- ) {
