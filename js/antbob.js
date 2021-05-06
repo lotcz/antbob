@@ -14,6 +14,7 @@ import {
 	ZERO_VECTOR,
 	X_AXIS,
 	Y_AXIS,
+	Y_AXIS_INVERTED,
 	Z_AXIS,
 	MOVEMENT_SPEED
 } from './bobstate/BobState.js';
@@ -29,10 +30,8 @@ import Vehicle from './vehicle.js';
 import AnimationHelper from './animation.js';
 import SoundHelper from './sound.js';
 
-const ON_GROUND_HEIGHT_DELTA = 0.05;
-const IN_AIR_HEIGHT_DELTA = 0.0002;
-
-const DUMMY_BODY_SIZE = 0.5;
+const DUMMY_BODY_SIZE = 0.25;
+const HEIGHT_DELTA = DUMMY_BODY_SIZE * 1.5;
 const BOB_WEIGHT = 0.1;
 
 const ROTATION_SPEED = 0.004;
@@ -121,16 +120,15 @@ export default class AntBob {
 		this.model = model;
 		this.group.add(model);
 
-		var radius = DUMMY_BODY_SIZE;
-		var shape = new Ammo.btBoxShape(new Ammo.btVector3(radius * 0.5, radius * 0.5, radius * 0.5));
-		this.dummy = new THREE.Mesh(new THREE.BoxGeometry(radius, radius, radius), new THREE.MeshBasicMaterial({color:0xFFFFFF}));
-		//var shape = new Ammo.btSphereShape(radius);
-		//this.dummy = new THREE.Mesh(new THREE.IcosahedronGeometry(radius, 3), new THREE.MeshBasicMaterial({color:0xFFFFFF}));
+		//var shape = new Ammo.btBoxShape(new Ammo.btVector3(DUMMY_BODY_SIZE * 0.5, DUMMY_BODY_SIZE * 0.5, DUMMY_BODY_SIZE * 0.5));
+		//this.dummy = new THREE.Mesh(new THREE.BoxGeometry(DUMMY_BODY_SIZE, DUMMY_BODY_SIZE, DUMMY_BODY_SIZE), new THREE.MeshBasicMaterial({color:0xFFFFFF}));
+		var shape = new Ammo.btSphereShape(DUMMY_BODY_SIZE);
+		this.dummy = new THREE.Mesh(new THREE.IcosahedronGeometry(DUMMY_BODY_SIZE, 3), new THREE.MeshBasicMaterial({color:0xFFFFFF}));
 		this.dummy.position.copy(this.group.position);
-		this.lastDummyPosition = this.dummy.position.clone();
 		this.dummy.userData.antbob = true;
 		//this.player.scene.add(this.dummy);
 		this.body = this.physics.createRigidBody(this.dummy, shape, BOB_WEIGHT);
+		this.body.setRestitution(0);
 		this.physics.addUserPointer(this.body, this.dummy);
 
 		this.changeState(STATE_STANDING);
@@ -143,8 +141,6 @@ export default class AntBob {
 		if (this.state) this.state.deactivate();
 		this.state = this.states[state_name];
 		this.state.activate();
-		this.body.setFriction(this.state.getFriction());
-		//this.body.setFriction(0);
 	}
 
 	update(event) {
@@ -161,18 +157,19 @@ export default class AntBob {
 		if (this.controls.moveRight) this.direction.applyAxisAngle(Y_AXIS, - ROTATION_SPEED * deltaTime);
 
 		// DETECT WHETHER ON GROUND
-		if (this.lastDummyPosition) {
-			this.heightDelta = Math.abs(this.dummy.position.y - this.lastDummyPosition.y);
-			//console.log(this.heightDelta);
-			this.onGround = (this.heightDelta < (this.onGround ? ON_GROUND_HEIGHT_DELTA : IN_AIR_HEIGHT_DELTA));
+		var raycaster = new THREE.Raycaster(this.dummy.position, Y_AXIS_INVERTED, 0.01, 10);
+		var intersections = raycaster.intersectObjects(this.physics.allBodies, false);
+		//this.player.scene.add(new THREE.ArrowHelper(raycaster.ray.direction, raycaster.ray.origin, 300, 0xff0000) );
+		if (intersections.length > 0) {
+			this.onGround = intersections[0].distance <= HEIGHT_DELTA;
+		} else {
+			this.onGround = false;
 		}
-
-		this.lastDummyPosition = this.dummy.position.clone();
 
 		// MODEL MOVEMENT
 		this.group.position.x = this.dummy.position.x;
 		this.group.position.z = this.dummy.position.z;
-		this.group.position.y = this.dummy.position.y - (DUMMY_BODY_SIZE / 2);
+		this.group.position.y = this.dummy.position.y - DUMMY_BODY_SIZE;
 
 		// MODEL ORIENTATION
 		this.group.lookAt(this.group.position.clone().add(this.direction));

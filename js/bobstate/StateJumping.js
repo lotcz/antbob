@@ -1,5 +1,3 @@
-import * as THREE from '../../node_modules/three/build/three.module.js';
-
 import {
 	BobState,
 	STATE_STANDING,
@@ -18,8 +16,8 @@ import {
 } from './BobState.js';
 
 const JUMP_TIMEOUT = 300;
-const JUMP_ENERGY = 600;
-const JUMP_SPEED = 5;
+const JUMP_ENERGY = 500;
+const JUMP_SPEED = 4;
 
 export default class StateJumping extends BobState {
 
@@ -35,6 +33,8 @@ export default class StateJumping extends BobState {
 
 		this.jumping = JUMP_ENERGY;
 		this.antbob.body.setAngularVelocity(new Ammo.btVector3(0, 0, 0));
+		this.antbob.body.setFriction(FRICTION_MOVEMENT);
+		this.antbob.body.setRollingFriction(0);
 	}
 
 	update(event) {
@@ -62,10 +62,12 @@ export default class StateJumping extends BobState {
 		this.antbob.body.setAngularVelocity(new Ammo.btVector3(0, 0, 0));
 		var velocity = ZERO_VECTOR.clone();
 		velocity.add(Y_AXIS.clone().multiplyScalar(this.jumping / JUMP_ENERGY));
+		/*
 		if (this.antbob.controls.moveForward)
 			this.jumpingDirection = this.antbob.direction;
 		else if (this.antbob.controls.moveBackward)
 			this.jumpingDirection = this.antbob.direction.clone().multiplyScalar(-1);
+		*/
 		velocity.add(this.jumpingDirection);
 		velocity.multiplyScalar(JUMP_SPEED);
 		this.antbob.body.setLinearVelocity(new Ammo.btVector3(velocity.x, velocity.y, velocity.z));
@@ -73,10 +75,6 @@ export default class StateJumping extends BobState {
 
 	deactivate() {
 		this.antbob.jumpTimeout = JUMP_TIMEOUT;
-	}
-
-	getFriction() {
-		return FRICTION_MOVEMENT;
 	}
 
 }

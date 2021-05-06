@@ -1,5 +1,3 @@
-import * as THREE from '../../node_modules/three/build/three.module.js';
-
 import {
 	BobState,
 	STATE_STANDING,
@@ -19,6 +17,9 @@ export default class StateRunningBackwards extends BobState {
 
 	activate() {
 		this.antbob.animation.activateAction('Backwards', ANIMATION_TRANSITION_DURATION, false);
+
+		this.antbob.body.setFriction(FRICTION_MOVEMENT);
+		this.antbob.body.setRollingFriction(0);
 	}
 
 	update(event) {
@@ -51,10 +52,6 @@ export default class StateRunningBackwards extends BobState {
 		var next = ZERO_VECTOR.clone();
 		next.sub(this.antbob.direction).multiplyScalar(MOVEMENT_SPEED);
 		return next;
-	}
-
-	getFriction() {
-		return FRICTION_MOVEMENT;
 	}
 
 }

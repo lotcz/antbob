@@ -1,5 +1,3 @@
-import * as THREE from '../../node_modules/three/build/three.module.js';
-
 import {
 	BobState,
 	STATE_STANDING,
@@ -19,6 +17,8 @@ export default class StateRunning extends BobState {
 
 	activate() {
 		this.antbob.animation.activateAction('Running', ANIMATION_TRANSITION_DURATION, false);
+		this.antbob.body.setFriction(FRICTION_MOVEMENT);
+		this.antbob.body.setRollingFriction(0);
 	}
 
 	update(event) {
@@ -52,10 +52,6 @@ export default class StateRunning extends BobState {
 		velocity.multiplyScalar(MOVEMENT_SPEED);
 		this.antbob.body.setLinearVelocity(new Ammo.btVector3(velocity.x, velocity.y, velocity.z));
 		this.antbob.body.setAngularVelocity(new Ammo.btVector3(0, 0, 0));
-	}
-
-	getFriction() {
-		return FRICTION_MOVEMENT;
 	}
 
 }

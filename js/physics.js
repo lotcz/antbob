@@ -2,7 +2,7 @@ const DISABLE_DEACTIVATION = 4;
 const STEP_SIMULATION = 1;
 const PHYSICS_SPEED = 0.01;
 const DEFAULT_GRAVITY = -9.8;
-const DEFAULT_MARGIN = 0.001;
+const DEFAULT_MARGIN = 0.01;
 
 export default class PhysicsHelper {
 
@@ -27,6 +27,8 @@ export default class PhysicsHelper {
 		//this.softBodyHelpers = new Ammo.btSoftBodyHelpers();
 
 		this.rigidBodies = [];
+
+		this.allBodies = [];
 
 		if (margin === undefined) margin = DEFAULT_MARGIN;
 		this.margin = margin;
@@ -119,10 +121,17 @@ export default class PhysicsHelper {
 		if (threeObject.userData.physics && threeObject.userData.physics.mass == 0)
 			this.addUserPointer(body, threeObject);
 
-		if ( mass > 0 ) {
-			this.rigidBodies.push( threeObject );
+		this.allBodies.push(threeObject);
+
+		if (mass > 0) {
+			this.rigidBodies.push(threeObject);
 			body.setActivationState(DISABLE_DEACTIVATION);
 		}
+
+		// EXPERIMENT
+		body.setRestitution(0.8);
+		body.setFriction(1);
+		body.setRollingFriction(0.05);
 
 		this.physicsWorld.addRigidBody(body);
 		return body;

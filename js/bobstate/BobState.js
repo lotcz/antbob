@@ -10,10 +10,11 @@ export const STATE_RUNNING_BACKWARDS = 5;
 export const ZERO_VECTOR = new THREE.Vector3(0, 0, 0);
 export const X_AXIS = new THREE.Vector3(1, 0, 0);
 export const Y_AXIS = new THREE.Vector3(0, 1, 0);
+export const Y_AXIS_INVERTED = Y_AXIS.clone().multiplyScalar(-1);
 export const Z_AXIS = new THREE.Vector3(0, 0, 1);
 
 export const ANIMATION_TRANSITION_DURATION = 300;
-export const FRICTION_STATIC = 10;
+export const FRICTION_STATIC = 100;
 export const FRICTION_MOVEMENT = 0;
 export const MOVEMENT_SPEED = 4;
 

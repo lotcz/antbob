@@ -51,8 +51,8 @@ export default class Player {
 		if ( this.project.toneMappingExposure !== undefined ) this.renderer.toneMappingExposure = this.project.toneMappingExposure;
 		if ( this.project.physicallyCorrectLights !== undefined ) this.renderer.physicallyCorrectLights = this.project.physicallyCorrectLights;
 
-		this.setScene( this.loader.parse( json.scene ) );
-		this.setCamera( this.loader.parse( json.camera ) );
+		this.setScene(this.loader.parse(json.scene));
+		this.setCamera(this.loader.parse(json.camera));
 
 		this.events = {
 			init: [],

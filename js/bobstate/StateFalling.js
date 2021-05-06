@@ -16,6 +16,9 @@ export default class StateFalling extends BobState {
 
 	activate() {
 		this.antbob.animation.activateAction('Fall', ANIMATION_TRANSITION_DURATION * 0.5, false);
+
+		this.antbob.body.setFriction(FRICTION_STATIC);
+		this.antbob.body.setRollingFriction(0);
 	}
 
 	update(event) {
@@ -28,10 +31,6 @@ export default class StateFalling extends BobState {
 				this.changeState(STATE_STANDING);
 			}
 		}
-	}
-
-	getFriction() {
-		return FRICTION_STATIC;
 	}
 
 }

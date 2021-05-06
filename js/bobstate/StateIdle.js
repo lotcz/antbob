@@ -16,6 +16,9 @@ export default class StateIdle extends BobState {
 
 	activate(bob) {
 		this.antbob.animation.activateAction('Idle', ANIMATION_TRANSITION_DURATION, false);
+
+		this.antbob.body.setFriction(FRICTION_STATIC);
+		this.antbob.body.setRollingFriction(1);
 	}
 
 	update(event) {
@@ -31,10 +34,6 @@ export default class StateIdle extends BobState {
 			this.changeState(STATE_JUMPING);
 			return;
 		}
-	}
-
-	getFriction() {
-		return FRICTION_STATIC;
 	}
 
 }
