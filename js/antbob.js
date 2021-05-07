@@ -215,7 +215,7 @@ export default class AntBob {
 				bulletBody.setFriction(0.3);
 
 				var bulletVector = this.direction.clone();
-				bulletVector.add(Y_AXIS).multiplyScalar(1.5);
+				bulletVector.add(Y_AXIS).multiplyScalar(5);
 				bulletBody.setLinearVelocity(new Ammo.btVector3(bulletVector.x, bulletVector.y, bulletVector.z));
 				//bulletBody.setAngularVelocity(new Ammo.btVector3(bulletVector.x, bulletVector.y, bulletVector.z));
 			}

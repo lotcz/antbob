@@ -5,6 +5,7 @@ import SoundHelper from './sound.js';
 import InteractionHelper from './interaction.js';
 import Controls from './controls.js';
 import AntBob from './antbob.js';
+import MyExperiment from './experiment.js';
 
 export default class Player {
 
@@ -103,8 +104,8 @@ export default class Player {
 		this.userdata = new UserdataHelper(this.scene);
 
 		// PHYSICS
-		var physics = this.physics = new PhysicsHelper(this);
-		this.events.update.push((e) => physics.update(e));
+		this.physics = new PhysicsHelper(this);
+		this.events.update.push((e) => this.physics.update(e));
 
 		// BOB
 		var bob = this.antbob = new AntBob(this, this.physics, this.controls, onBobLoaded);
@@ -116,6 +117,10 @@ export default class Player {
 		// SOUND
 		this.sound = new SoundHelper('sound/forest_1.mp3');
 		this.sound.play();
+
+		// EXPERIMENT
+		var experiment = new MyExperiment(this);
+		this.events.update.push((e) => experiment.updatePhysics(e));
 
 		this.onResize = () => this.setSize(this.dom.offsetWidth, this.dom.offsetHeight);
 		this.onResize();

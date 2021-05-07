@@ -10,21 +10,27 @@ export default class PhysicsHelper {
 		this.player = player;
 		this.scene = player.scene;
 
-		const collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
-		this.dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration);
 		const broadphase = new Ammo.btDbvtBroadphase();
 		const solver = new Ammo.btSequentialImpulseConstraintSolver();
-		//const softBodySolver = new Ammo.btDefaultSoftBodySolver();
-		//physicsWorld = new Ammo.btSoftRigidDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration, softBodySolver);
-		this.physicsWorld = new Ammo.btDiscreteDynamicsWorld(this.dispatcher, broadphase, solver, collisionConfiguration);
+
+		if (true) {
+			const collisionConfiguration = new Ammo.btSoftBodyRigidBodyCollisionConfiguration();
+			this.dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration );
+			const softBodySolver = new Ammo.btDefaultSoftBodySolver();
+			this.physicsWorld = new Ammo.btSoftRigidDynamicsWorld(this.dispatcher, broadphase, solver, collisionConfiguration, softBodySolver );
+			//this.softBodyHelpers = new Ammo.btSoftBodyHelpers();
+		} else {
+			const collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
+			this.dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration);
+			this.physicsWorld = new Ammo.btDiscreteDynamicsWorld(this.dispatcher, broadphase, solver, collisionConfiguration);
+			//physicsWorld.getWorldInfo().set_m_gravity(new Ammo.btVector3( 0, gravityConstant, 0));
+		}
 
 		if (gravity === undefined) gravity = new Ammo.btVector3(0, DEFAULT_GRAVITY, 0);
 		this.physicsWorld.setGravity(gravity);
-
-		//physicsWorld.getWorldInfo().set_m_gravity(new Ammo.btVector3( 0, gravityConstant, 0));
+		this.physicsWorld.getWorldInfo().set_m_gravity(gravity);
 
 		this.transformAux1 = new Ammo.btTransform();
-		//this.softBodyHelpers = new Ammo.btSoftBodyHelpers();
 
 		this.rigidBodies = [];
 
