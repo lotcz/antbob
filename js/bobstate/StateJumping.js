@@ -10,14 +10,16 @@ import {
 	FRICTION_STATIC,
 	FRICTION_MOVEMENT,
 	ZERO_VECTOR,
+	MOVEMENT_SPEED,
 	X_AXIS,
 	Y_AXIS,
 	Z_AXIS
 } from './BobState.js';
 
 const JUMP_TIMEOUT = 300;
-const JUMP_ENERGY = 500;
-const JUMP_SPEED = 4;
+const JUMP_TIME = 600;
+const JUMP_ENERGY = 350;
+const JUMP_SPEED = 5;
 
 export default class StateJumping extends BobState {
 
@@ -26,19 +28,25 @@ export default class StateJumping extends BobState {
 		this.antbob.animation.activateAction('Jump', ANIMATION_TRANSITION_DURATION * 0.5, false);
 
 		if (this.antbob.controls.moveForward)
-			this.jumpingDirection = this.antbob.direction;
+			this.movementDirection = this.antbob.direction.clone();
 		else if (this.antbob.controls.moveBackward)
-			this.jumpingDirection = this.antbob.direction.clone().multiplyScalar(-1);
-		else this.jumpingDirection = ZERO_VECTOR;
+			this.movementDirection = this.antbob.direction.clone().multiplyScalar(-1);
+		else this.movementDirection = ZERO_VECTOR;
 
-		this.jumping = JUMP_ENERGY;
+		this.movementDirection.multiplyScalar(MOVEMENT_SPEED);
+
+		this.jumpingDirection = Y_AXIS.clone();
+		this.jumpingDirection.multiplyScalar(JUMP_SPEED);
+
+		this.time = JUMP_TIME;
+		this.energy = JUMP_ENERGY;
 		this.antbob.body.setAngularVelocity(new Ammo.btVector3(0, 0, 0));
 		this.antbob.body.setFriction(FRICTION_MOVEMENT);
 		this.antbob.body.setRollingFriction(0);
 	}
 
 	update(event) {
-		if (this.jumping <= 0) {
+		if (this.time <= 0) {
 			if (!this.antbob.onGround) {
 				this.changeState(STATE_FALLING);
 				return;
@@ -58,19 +66,15 @@ export default class StateJumping extends BobState {
 			return;
 		}
 
-		this.jumping -= event.delta;
-		this.antbob.body.setAngularVelocity(new Ammo.btVector3(0, 0, 0));
-		var velocity = ZERO_VECTOR.clone();
-		velocity.add(Y_AXIS.clone().multiplyScalar(this.jumping / JUMP_ENERGY));
-		/*
-		if (this.antbob.controls.moveForward)
-			this.jumpingDirection = this.antbob.direction;
-		else if (this.antbob.controls.moveBackward)
-			this.jumpingDirection = this.antbob.direction.clone().multiplyScalar(-1);
-		*/
-		velocity.add(this.jumpingDirection);
-		velocity.multiplyScalar(JUMP_SPEED);
-		this.antbob.body.setLinearVelocity(new Ammo.btVector3(velocity.x, velocity.y, velocity.z));
+		if (this.energy > 0) {
+			var velocity = ZERO_VECTOR.clone();
+			velocity.add(this.movementDirection);
+			velocity.add(this.jumpingDirection.clone().multiplyScalar(this.energy / JUMP_ENERGY));
+			this.antbob.body.setLinearVelocity(new Ammo.btVector3(velocity.x, velocity.y, velocity.z));
+		}
+
+		this.energy -= event.delta;
+		this.time -= event.delta;
 	}
 
 	deactivate() {

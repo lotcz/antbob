@@ -13,12 +13,16 @@ import {
 	MOVEMENT_SPEED
 } from './BobState.js';
 
+const RUNNING_ACCELERATION = 0.0085;
+
 export default class StateRunning extends BobState {
 
 	activate() {
 		this.antbob.animation.activateAction('Running', ANIMATION_TRANSITION_DURATION, false);
 		this.antbob.body.setFriction(FRICTION_MOVEMENT);
 		this.antbob.body.setRollingFriction(0);
+
+		this.speed = 0;
 	}
 
 	update(event) {
@@ -46,12 +50,16 @@ export default class StateRunning extends BobState {
 		// animate backpack
 		if (this.antbob.gun) this.antbob.gun.position.y = 0.02 + Math.sin(event.time / 50) * 0.02;
 
+		if (this.speed < MOVEMENT_SPEED) {
+			this.speed += (event.delta * RUNNING_ACCELERATION);
+			this.speed = Math.min(MOVEMENT_SPEED, this.speed);
+		}
+
 		// PHYSICS MOVEMENT SIMULATION
 		var velocity = ZERO_VECTOR.clone();
 		velocity.add(this.antbob.direction);
-		velocity.multiplyScalar(MOVEMENT_SPEED);
+		velocity.multiplyScalar(this.speed);
 		this.antbob.body.setLinearVelocity(new Ammo.btVector3(velocity.x, velocity.y, velocity.z));
-		this.antbob.body.setAngularVelocity(new Ammo.btVector3(0, 0, 0));
 	}
 
 }

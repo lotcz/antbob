@@ -32,7 +32,7 @@ import SoundHelper from './sound.js';
 
 const DUMMY_BODY_SIZE = 0.25;
 const HEIGHT_DELTA = DUMMY_BODY_SIZE * 1.5;
-const BOB_WEIGHT = 0.1;
+const BOB_WEIGHT = 1;
 
 const ROTATION_SPEED = 0.004;
 
@@ -120,8 +120,8 @@ export default class AntBob {
 		this.model = model;
 		this.group.add(model);
 
-		//var shape = new Ammo.btBoxShape(new Ammo.btVector3(DUMMY_BODY_SIZE * 0.5, DUMMY_BODY_SIZE * 0.5, DUMMY_BODY_SIZE * 0.5));
-		//this.dummy = new THREE.Mesh(new THREE.BoxGeometry(DUMMY_BODY_SIZE, DUMMY_BODY_SIZE, DUMMY_BODY_SIZE), new THREE.MeshBasicMaterial({color:0xFFFFFF}));
+		//var shape = new Ammo.btBoxShape(new Ammo.btVector3(DUMMY_BODY_SIZE / 2 , DUMMY_BODY_SIZE, DUMMY_BODY_SIZE / 2));
+		//this.dummy = new THREE.Mesh(new THREE.BoxGeometry(DUMMY_BODY_SIZE, DUMMY_BODY_SIZE * 2, DUMMY_BODY_SIZE), new THREE.MeshBasicMaterial({color:0xFFFFFF}));
 		var shape = new Ammo.btSphereShape(DUMMY_BODY_SIZE);
 		this.dummy = new THREE.Mesh(new THREE.IcosahedronGeometry(DUMMY_BODY_SIZE, 3), new THREE.MeshBasicMaterial({color:0xFFFFFF}));
 		this.dummy.position.copy(this.group.position);
@@ -129,6 +129,7 @@ export default class AntBob {
 		//this.player.scene.add(this.dummy);
 		this.body = this.physics.createRigidBody(this.dummy, shape, BOB_WEIGHT);
 		this.body.setRestitution(0);
+		this.body.setDamping(0, 0);
 		this.physics.addUserPointer(this.body, this.dummy);
 
 		this.changeState(STATE_STANDING);

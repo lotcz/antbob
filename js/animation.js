@@ -78,6 +78,8 @@ export default class AnimationHelper {
 	}
 
 	executeCrossFade(startAction, endAction, duration) {
+		//console.log(endAction._clip.name);
+
 		// Not only the start action, but also the end action must get a weight of 1 before fading
 		// (concerning the start action this is already guaranteed in this place)
 		var durationSecs = duration / 1000;
