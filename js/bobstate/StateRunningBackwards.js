@@ -15,11 +15,12 @@ import {
 	RUNNING_SPEED
 } from './BobState.js';
 
+const RUNNING_BACKWARDS_SPEED = RUNNING_SPEED * 0.4;
+
 export default class StateRunningBackwards extends BobState {
 
 	activate() {
 		this.antbob.animation.activateAction('Backwards', ANIMATION_TRANSITION_DURATION, false);
-		this.antbob.animation.speed = 1.5;
 		this.antbob.body.setFriction(FRICTION_MOVEMENT);
 		this.antbob.body.setRollingFriction(0);
 	}
@@ -52,20 +53,19 @@ export default class StateRunningBackwards extends BobState {
 		// animate backpack
 		if (this.antbob.gun) this.antbob.gun.position.y = 0.02 + Math.sin(event.time / 50) * 0.02;
 
-		// PHYSICS MOVEMENT SIMULATION
-		var velocity = this.getVelocity(event);
-		this.antbob.body.setLinearVelocity(new Ammo.btVector3(velocity.x, velocity.y, velocity.z));
-		this.antbob.body.setAngularVelocity(new Ammo.btVector3(0, 0, 0));
-	}
+		if (this.antbob.speed < RUNNING_BACKWARDS_SPEED) {
+			this.antbob.speed += (event.delta * RUNNING_BACKWARDS_SPEED);
+			this.antbob.speed = Math.min(RUNNING_BACKWARDS_SPEED, this.antbob.speed);
+		}
 
-	getVelocity(event) {
-		var next = ZERO_VECTOR.clone();
-		next.sub(this.antbob.direction).multiplyScalar(RUNNING_SPEED);
-		return next;
+		// PHYSICS MOVEMENT SIMULATION
+		var velocity = ZERO_VECTOR.clone();
+		velocity.sub(this.antbob.direction).multiplyScalar(this.antbob.speed);
+		this.antbob.body.setLinearVelocity(new Ammo.btVector3(velocity.x, velocity.y, velocity.z));
 	}
 
 	deactivate() {
-		this.antbob.animation.speed = 1;
+		//this.antbob.animation.speed = 1;
 	}
 
 }

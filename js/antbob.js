@@ -57,7 +57,7 @@ export default class AntBob {
 		this.firing = 0;
 		this.collisionRequestSent = false;
 
-		this.animation = new AnimationHelper(this.player, 'models/antbob-animations.glb', (model) => this.onAnimationLoaded(model));
+		this.animation = new AnimationHelper(this.player, 'models/antbob-animations.glb?v=2', (model) => this.onAnimationLoaded(model));
 
 		this.group = new THREE.Group();
 		var entry = this.player.scene.getObjectByName('Exit');

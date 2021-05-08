@@ -19,7 +19,7 @@ export const ANIMATION_TRANSITION_DURATION = 300;
 export const FRICTION_STATIC = 100;
 export const FRICTION_MOVEMENT = 0;
 export const RUNNING_SPEED = 4;
-export const WALKING_SPEED = 1.8;
+export const WALKING_SPEED = 1;
 
 export class BobState {
 

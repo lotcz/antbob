@@ -17,11 +17,12 @@ import {
 } from './BobState.js';
 
 const WALKING_ACCELERATION = 0.0045;
+const WALKING_BACKWARDS_SPEED = WALKING_SPEED * 0.5;
 
 export default class StateWalkingBackwards extends BobState {
 
 	activate() {
-		this.antbob.animation.activateAction('Backwards', ANIMATION_TRANSITION_DURATION, false);
+		this.antbob.animation.activateAction('WalkingBackwards', ANIMATION_TRANSITION_DURATION, false);
 		this.antbob.body.setFriction(FRICTION_MOVEMENT);
 		this.antbob.body.setRollingFriction(0);
 	}
@@ -54,14 +55,13 @@ export default class StateWalkingBackwards extends BobState {
 		// animate backpack
 		if (this.antbob.gun) this.antbob.gun.position.y = 0.02 + Math.sin(event.time / 50) * 0.02;
 
-		if (this.antbob.speed < WALKING_SPEED) {
+		if (this.antbob.speed < WALKING_BACKWARDS_SPEED) {
 			this.antbob.speed += (event.delta * WALKING_ACCELERATION);
-			this.antbob.speed = Math.min(WALKING_SPEED, this.antbob.speed);
+			this.antbob.speed = Math.min(WALKING_BACKWARDS_SPEED, this.antbob.speed);
 		}
 
-		if (this.antbob.speed > WALKING_SPEED) {
-			//this.antbob.speed -= (event.delta * WALKING_ACCELERATION);
-			this.antbob.speed = WALKING_SPEED;
+		if (this.antbob.speed > WALKING_BACKWARDS_SPEED) {
+			this.antbob.speed = WALKING_BACKWARDS_SPEED;
 		}
 
 		// PHYSICS MOVEMENT SIMULATION
