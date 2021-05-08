@@ -6,20 +6,22 @@ import {
 	STATE_JUMPING,
 	STATE_FALLING,
 	STATE_RUNNING_BACKWARDS,
+	ANIMATION_TRANSITION_DURATION,
 	STATE_WALKING,
 	STATE_WALKING_BACKWARDS,
-	ANIMATION_TRANSITION_DURATION,
 	FRICTION_STATIC,
 	FRICTION_MOVEMENT,
 	ZERO_VECTOR,
+	WALKING_SPEED,
 	RUNNING_SPEED
 } from './BobState.js';
 
-export default class StateRunningBackwards extends BobState {
+const WALKING_ACCELERATION = 0.0045;
+
+export default class StateWalkingBackwards extends BobState {
 
 	activate() {
 		this.antbob.animation.activateAction('Backwards', ANIMATION_TRANSITION_DURATION, false);
-		this.antbob.animation.speed = 1.5;
 		this.antbob.body.setFriction(FRICTION_MOVEMENT);
 		this.antbob.body.setRollingFriction(0);
 	}
@@ -44,28 +46,29 @@ export default class StateRunningBackwards extends BobState {
 			return;
 		}
 
-		if (!(this.antbob.controls.run ^ this.antbob.controls.caps)) {
-			this.changeState(STATE_WALKING_BACKWARDS);
+		if (this.antbob.controls.run ^ this.antbob.controls.caps) {
+			this.changeState(STATE_RUNNING_BACKWARDS);
 			return;
 		}
 
 		// animate backpack
 		if (this.antbob.gun) this.antbob.gun.position.y = 0.02 + Math.sin(event.time / 50) * 0.02;
 
+		if (this.antbob.speed < WALKING_SPEED) {
+			this.antbob.speed += (event.delta * WALKING_ACCELERATION);
+			this.antbob.speed = Math.min(WALKING_SPEED, this.antbob.speed);
+		}
+
+		if (this.antbob.speed > WALKING_SPEED) {
+			//this.antbob.speed -= (event.delta * WALKING_ACCELERATION);
+			this.antbob.speed = WALKING_SPEED;
+		}
+
 		// PHYSICS MOVEMENT SIMULATION
-		var velocity = this.getVelocity(event);
+		var velocity = ZERO_VECTOR.clone();
+		velocity.sub(this.antbob.direction).multiplyScalar(this.antbob.speed);
 		this.antbob.body.setLinearVelocity(new Ammo.btVector3(velocity.x, velocity.y, velocity.z));
 		this.antbob.body.setAngularVelocity(new Ammo.btVector3(0, 0, 0));
-	}
-
-	getVelocity(event) {
-		var next = ZERO_VECTOR.clone();
-		next.sub(this.antbob.direction).multiplyScalar(RUNNING_SPEED);
-		return next;
-	}
-
-	deactivate() {
-		this.antbob.animation.speed = 1;
 	}
 
 }

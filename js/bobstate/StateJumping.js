@@ -6,11 +6,12 @@ import {
 	STATE_JUMPING,
 	STATE_FALLING,
 	STATE_RUNNING_BACKWARDS,
+	STATE_WALKING,
 	ANIMATION_TRANSITION_DURATION,
 	FRICTION_STATIC,
 	FRICTION_MOVEMENT,
 	ZERO_VECTOR,
-	MOVEMENT_SPEED,
+	RUNNING_SPEED,
 	X_AXIS,
 	Y_AXIS,
 	Z_AXIS
@@ -33,7 +34,7 @@ export default class StateJumping extends BobState {
 			this.movementDirection = this.antbob.direction.clone().multiplyScalar(-1);
 		else this.movementDirection = ZERO_VECTOR;
 
-		this.movementDirection.multiplyScalar(MOVEMENT_SPEED);
+		this.movementDirection.multiplyScalar(Math.max(RUNNING_SPEED / 2, this.antbob.speed));
 
 		this.jumpingDirection = Y_AXIS.clone();
 		this.jumpingDirection.multiplyScalar(JUMP_SPEED);
@@ -53,7 +54,10 @@ export default class StateJumping extends BobState {
 			}
 
 			if (this.antbob.controls.moveForward) {
-				this.changeState(STATE_RUNNING);
+				if (this.antbob.controls.run ^ this.antbob.controls.caps)
+					this.changeState(STATE_RUNNING);
+				else
+					this.changeState(STATE_WALKING);
 				return;
 			}
 

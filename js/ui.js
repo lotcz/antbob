@@ -26,7 +26,7 @@ export default class UI {
 
 		this.showInteraction({ name: 'Loading...'});
 		this.player.loadFile(
-			'levels/' + level + '/app.json?v=8',
+			'levels/' + level + '/app.json?v=15',
 			() =>  {
 				//this.player.setCamera(this.player.scene.getObjectByName('PerspectiveCamera'));
 				this.player.play();

@@ -8,6 +8,8 @@ import {
 	STATE_JUMPING,
 	STATE_FALLING,
 	STATE_RUNNING_BACKWARDS,
+	STATE_WALKING,
+	STATE_WALKING_BACKWARDS,
 	ANIMATION_TRANSITION_DURATION,
 	FRICTION_STATIC,
 	FRICTION_MOVEMENT,
@@ -16,7 +18,7 @@ import {
 	Y_AXIS,
 	Y_AXIS_INVERTED,
 	Z_AXIS,
-	MOVEMENT_SPEED
+	RUNNING_SPEED
 } from './bobstate/BobState.js';
 
 import StateStanding from './bobstate/StateStanding.js';
@@ -25,6 +27,8 @@ import StateRunningBackwards from './bobstate/StateRunningBackwards.js';
 import StateJumping from './bobstate/StateJumping.js';
 import StateIdle from './bobstate/StateIdle.js';
 import StateFalling from './bobstate/StateFalling.js';
+import StateWalking from './bobstate/StateWalking.js';
+import StateWalkingBackwards from './bobstate/StateWalkingBackwards.js';
 
 import Vehicle from './vehicle.js';
 import AnimationHelper from './animation.js';
@@ -48,6 +52,7 @@ export default class AntBob {
 		this.onGround = true;
 		this.jumpTimeout = 0;
 		this.state = null;
+		this.speed = 0;
 		this.gun = null;
 		this.firing = 0;
 		this.collisionRequestSent = false;
@@ -70,6 +75,8 @@ export default class AntBob {
 		this.states[STATE_JUMPING] = new StateJumping(this);
 		this.states[STATE_FALLING] = new StateFalling(this);
 		this.states[STATE_RUNNING_BACKWARDS] = new StateRunningBackwards(this);
+		this.states[STATE_WALKING] = new StateWalking(this);
+		this.states[STATE_WALKING_BACKWARDS] = new StateWalkingBackwards(this);
 
 		// SOUND
 		this.dropSound = new SoundHelper('sound/jump_drop.ogg', false);
@@ -79,7 +86,7 @@ export default class AntBob {
 	}
 
 	processMaterials(model) {
-		const black = new THREE.MeshPhongMaterial({color:0x050505, skinning:true});
+		const black = new THREE.MeshPhongMaterial({color:0x000000, shininess: 15, skinning:true});
 		const white = new THREE.MeshBasicMaterial({color:0xF5F5F5, skinning:true});
 		const green = new THREE.MeshLambertMaterial({color:0x0A3701, skinning:true});
 		const blue = new THREE.MeshLambertMaterial({color:0x0117C1, skinning:true});

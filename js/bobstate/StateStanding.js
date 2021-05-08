@@ -6,6 +6,8 @@ import {
 	STATE_JUMPING,
 	STATE_FALLING,
 	STATE_RUNNING_BACKWARDS,
+	STATE_WALKING,
+	STATE_WALKING_BACKWARDS,
 	ANIMATION_TRANSITION_DURATION,
 	FRICTION_STATIC,
 	FRICTION_MOVEMENT,
@@ -26,6 +28,7 @@ export default class StateStanding extends BobState {
 		this.antbob.body.setRollingFriction(10);
 		this.antbob.body.setLinearVelocity(new Ammo.btVector3(0, 0, 0));
 		this.antbob.body.setAngularVelocity(new Ammo.btVector3(0, 0, 0));
+		this.antbob.speed = 0;
 	}
 
 	update(event) {
@@ -35,12 +38,18 @@ export default class StateStanding extends BobState {
 		}
 
 		if (this.antbob.controls.moveForward) {
-			this.changeState(STATE_RUNNING);
+			if (this.antbob.controls.run ^ this.antbob.controls.caps)
+				this.changeState(STATE_RUNNING);
+			else
+				this.changeState(STATE_WALKING);
 			return;
 		}
 
 		if (this.antbob.controls.moveBackward) {
-			this.changeState(STATE_RUNNING_BACKWARDS);
+			if (this.antbob.controls.run ^ this.antbob.controls.caps)
+				this.changeState(STATE_RUNNING_BACKWARDS);
+			else
+				this.changeState(STATE_WALKING_BACKWARDS);
 			return;
 		}
 

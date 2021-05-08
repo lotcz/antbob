@@ -8,6 +8,7 @@ export default class AnimationHelper {
 		this.model = null;
 		this.actions = [];
 		this.currentAction = null;
+		this.speed = 1;
 		const loader = new GLTFLoader();
 		loader.load(path, (gltf) => this.onModelLoaded(gltf));
 	}
@@ -43,7 +44,7 @@ export default class AnimationHelper {
 	}
 
 	update(event) {
-		this.mixer.update(event.delta / 1000);
+		this.mixer.update(this.speed * event.delta / 1000);
 	}
 
 	modifyTimeScale(speed) {
@@ -60,6 +61,10 @@ export default class AnimationHelper {
 
 	activateAction(name, duration, synchronize) {
 		const action = this.actions[name];
+
+		if (this.currentAction === action)
+			return;
+
 		if (synchronize)
 			this.synchronizeCrossFade(this.currentAction, action, duration);
 		else

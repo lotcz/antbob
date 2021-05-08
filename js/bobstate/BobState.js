@@ -6,6 +6,8 @@ export const STATE_RUNNING = 2;
 export const STATE_JUMPING = 3;
 export const STATE_FALLING = 4;
 export const STATE_RUNNING_BACKWARDS = 5;
+export const STATE_WALKING = 6;
+export const STATE_WALKING_BACKWARDS = 7;
 
 export const ZERO_VECTOR = new THREE.Vector3(0, 0, 0);
 export const X_AXIS = new THREE.Vector3(1, 0, 0);
@@ -16,7 +18,8 @@ export const Z_AXIS = new THREE.Vector3(0, 0, 1);
 export const ANIMATION_TRANSITION_DURATION = 300;
 export const FRICTION_STATIC = 100;
 export const FRICTION_MOVEMENT = 0;
-export const MOVEMENT_SPEED = 4;
+export const RUNNING_SPEED = 4;
+export const WALKING_SPEED = 1.8;
 
 export class BobState {
 

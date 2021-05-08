@@ -119,8 +119,8 @@ export default class Player {
 		this.sound.play();
 
 		// EXPERIMENT
-		var experiment = new MyExperiment(this);
-		this.events.update.push((e) => experiment.updatePhysics(e));
+		//var experiment = new MyExperiment(this);
+		//this.events.update.push((e) => experiment.updatePhysics(e));
 
 		this.onResize = () => this.setSize(this.dom.offsetWidth, this.dom.offsetHeight);
 		this.onResize();
