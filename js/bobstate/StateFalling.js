@@ -19,9 +19,16 @@ export default class StateFalling extends BobState {
 
 		this.antbob.body.setFriction(FRICTION_MOVEMENT);
 		this.antbob.body.setRollingFriction(0);
+
+		this.timeout = 300;
 	}
 
 	update(event) {
+		if (this.timeout > 0) {
+			this.timeout -= event.delta;
+			return;
+		}
+
 		if (this.antbob.onGround) {
 			if (this.antbob.controls.moveForward) {
 				this.changeState(STATE_RUNNING);
