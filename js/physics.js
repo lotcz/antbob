@@ -11,6 +11,8 @@ const DEFAULT_ROLLING_FRICTION = 0.05;
 const DEFAULT_RESTITUTION = 0.1;
 const DEFAULT_LINEAR_DAMPING = 0.1;
 const DEFAULT_ANGULAR_DAMPING = 0.1;
+const DEFAULT_PRESSURE = 7;
+const DEFAULT_STIFFNESS = 0.9;
 
 export default class PhysicsHelper {
 
@@ -65,8 +67,8 @@ export default class PhysicsHelper {
 				this.createRigidBodyFromOctahedron(udata.node, udata.data);
 			if (udata.data.type == 'rigidCylinder')
 				this.createRigidBodyFromCylinder(udata.node, udata.data);
-			if (udata.data.type == 'cloth')
-				this.createCloth(udata.node, udata.data);
+			//if (udata.data.type == 'cloth')
+				//this.createCloth(udata.node, udata.data);
 			if (udata.data.type == 'softBody')
 				this.createSoftVolume(udata.node, udata.data);
 		}
@@ -105,7 +107,7 @@ export default class PhysicsHelper {
 
 	// Set pointer back to the three object
 	addUserPointer(body, threeObject) {
-		const btVecUserData = new Ammo.btVector3( 0, 0, 0 );
+		const btVecUserData = new Ammo.btVector3(0, 0, 0);
 		btVecUserData.threeObject = threeObject;
 		body.setUserPointer( btVecUserData );
 	}
@@ -113,8 +115,8 @@ export default class PhysicsHelper {
 	moveToScene(threeObject) {
 		if (threeObject.parent && threeObject.parent !== this.scene) {
 			threeObject.visible = threeObject.visible && threeObject.parent.visible;
-			threeObject.parent.updateWorldMatrix();
-			threeObject.updateWorldMatrix();
+			//threeObject.parent.updateWorldMatrix();
+			//threeObject.updateWorldMatrix();
 			var pos = new THREE.Vector3();
 			threeObject.getWorldPosition(pos);
 			var quat = new THREE.Quaternion();
@@ -122,7 +124,7 @@ export default class PhysicsHelper {
 			threeObject.parent.remove(threeObject);
 			threeObject.position.copy(pos);
 			threeObject.quaternion.copy(quat);
-			threeObject.updateWorldMatrix();
+			//threeObject.updateWorldMatrix();
 			this.scene.add(threeObject);
 		}
 	}
@@ -168,12 +170,11 @@ export default class PhysicsHelper {
 		return body;
 	}
 
-	isEqual( x1, y1, z1, x2, y2, z2 ) {
+	isEqual(x1, y1, z1, x2, y2, z2) {
 		const delta = 0.000001;
 		return Math.abs( x2 - x1 ) < delta &&
-				Math.abs( y2 - y1 ) < delta &&
-				Math.abs( z2 - z1 ) < delta;
-
+			Math.abs( y2 - y1 ) < delta &&
+			Math.abs( z2 - z1 ) < delta;
 	}
 
 	mapIndices( bufGeometry, indexedBufferGeom ) {
@@ -181,14 +182,11 @@ export default class PhysicsHelper {
 		const vertices = bufGeometry.attributes.position.array;
 		const idxVertices = indexedBufferGeom.attributes.position.array;
 		const indices = indexedBufferGeom.index.array;
-
 		const numIdxVertices = idxVertices.length / 3;
 		const numVertices = vertices.length / 3;
-
 		bufGeometry.ammoVertices = idxVertices;
 		bufGeometry.ammoIndices = indices;
 		bufGeometry.ammoIndexAssociation = [];
-
 		for ( let i = 0; i < numIdxVertices; i ++ ) {
 			const association = [];
 			bufGeometry.ammoIndexAssociation.push( association );
@@ -208,34 +206,32 @@ export default class PhysicsHelper {
 		const posOnlyBufGeometry = new THREE.BufferGeometry();
 		posOnlyBufGeometry.setAttribute('position', bufGeometry.getAttribute('position'));
 		posOnlyBufGeometry.setIndex(bufGeometry.getIndex());
-
 		// Merge the vertices so the triangle soup is converted to indexed triangles
 		const indexedBufferGeom = BufferGeometryUtils.mergeVertices(posOnlyBufGeometry);
-
 		// Create index arrays mapping the indexed vertices to bufGeometry vertices
 		this.mapIndices( bufGeometry, indexedBufferGeom );
-
 	}
 
 	createSoftVolume(threeObject, data) {
-		this.moveToScene(threeObject);
-		var bufferGeom = threeObject.geometry.clone();
 		var material =  threeObject.material.clone();
-		var position = threeObject.position.clone();
-		var quaternion = threeObject.quaternion.clone();
-		this.scene.remove(threeObject);
-		var pressure = 0.9;
+		var position = new THREE.Vector3();
+		threeObject.getWorldPosition(position);
+		var quaternion = new THREE.Quaternion();
+		threeObject.getWorldQuaternion(quaternion);
+
+		threeObject.parent.remove(threeObject);
+
+		var bufferGeom = threeObject.geometry.clone();
+		bufferGeom.translate(position.x, position.y, position.z);
 		this.processGeometry(bufferGeom);
 
 		threeObject = new THREE.Mesh(bufferGeom, material);
-		threeObject.position.set(position.x, position.y, position.z);
-		threeObject.quaternion.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
+		//threeObject.position.set(position.x, position.y, position.z);
+		//threeObject.quaternion.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
 		threeObject.castShadow = true;
 		threeObject.receiveShadow = true;
 		threeObject.frustumCulled = false;
 		this.scene.add( threeObject );
-
-		//console.log(threeObject);
 
 		// Volume physic object
 		const volumeSoftBody = this.softBodyHelpers.CreateFromTriMesh(
@@ -247,30 +243,27 @@ export default class PhysicsHelper {
 		);
 
 		const sbConfig = volumeSoftBody.get_m_cfg();
-		sbConfig.set_viterations( 40 );
-		sbConfig.set_piterations( 40 );
-
+		sbConfig.set_viterations(40);
+		sbConfig.set_piterations(40);
 		// Soft-soft and soft-rigid collisions
-		sbConfig.set_collisions( 0x11 );
-
+		sbConfig.set_collisions(0x11);
 		// Friction
-		sbConfig.set_kDF( 0.1 );
+		sbConfig.set_kDF(data.friction || DEFAULT_FRICTION);
 		// Damping
-		sbConfig.set_kDP( 0.01 );
+		sbConfig.set_kDP(data.linearDamping || DEFAULT_LINEAR_DAMPING);
 		// Pressure
-		sbConfig.set_kPR( pressure );
+		sbConfig.set_kPR(data.pressure || DEFAULT_PRESSURE);
 		// Stiffness
-		volumeSoftBody.get_m_materials().at( 0 ).set_m_kLST( 0.9 );
-		volumeSoftBody.get_m_materials().at( 0 ).set_m_kAST( 0.9 );
-
+		volumeSoftBody.get_m_materials().at(0).set_m_kLST(data.stiffness || DEFAULT_STIFFNESS);
+		volumeSoftBody.get_m_materials().at(0).set_m_kAST(data.stiffness || DEFAULT_STIFFNESS);
 		volumeSoftBody.setTotalMass(data.mass, false);
 		Ammo.castObject( volumeSoftBody, Ammo.btCollisionObject ).getCollisionShape().setMargin(this.margin);
 		this.physicsWorld.addSoftBody(volumeSoftBody, 1, - 1);
 		threeObject.userData.physicsBody = volumeSoftBody;
-		// Disable deactivation
 		volumeSoftBody.setActivationState(DISABLE_DEACTIVATION);
 
-		this.softBodies.push( threeObject );
+		this.softBodies.push(threeObject);
+		this.allBodies.push(threeObject);
 	}
 
 	createCloth(threeObject, data) {

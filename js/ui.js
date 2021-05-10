@@ -26,10 +26,11 @@ export default class UI {
 
 		this.showInteraction({ name: 'Loading...'});
 		this.player.loadFile(
-			'levels/' + level + '/app.json?v=19',
+			'levels/' + level + '/app.json?v=28',
 			() =>  {
 				//this.player.setCamera(this.player.scene.getObjectByName('PerspectiveCamera'));
 				this.player.play();
+				this.hideInteraction();
 				this.container.style.display = 'block';
 			}
 		);
