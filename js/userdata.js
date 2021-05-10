@@ -4,6 +4,7 @@ export default class UserdataHelper {
 		this.node = node;
 		// 'type' => { data, node }
 		this.userData = {
+			stairs: [],
 			physics: [],
 			interaction: []
 		};
@@ -21,6 +22,10 @@ export default class UserdataHelper {
 		for (var key in this.userData)
 			if (node.userData.hasOwnProperty(key))
 				this.userData[key].push({ data: node.userData[key], node: node});
+	}
+
+	removeUserData(key, data) {
+		this.userData[key] = this.userData[key].filter((i) => i != data);
 	}
 
 }

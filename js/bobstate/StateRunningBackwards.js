@@ -58,6 +58,10 @@ export default class StateRunningBackwards extends BobState {
 			this.antbob.speed = Math.min(RUNNING_BACKWARDS_SPEED, this.antbob.speed);
 		}
 
+		if (this.antbob.speed > RUNNING_BACKWARDS_SPEED) {
+			this.antbob.speed = RUNNING_BACKWARDS_SPEED;
+		}
+
 		// PHYSICS MOVEMENT SIMULATION
 		var velocity = ZERO_VECTOR.clone();
 		velocity.sub(this.antbob.direction).multiplyScalar(this.antbob.speed);

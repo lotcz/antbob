@@ -1,8 +1,16 @@
+import { BufferGeometryUtils } from '../node_modules/three/examples/jsm/utils/BufferGeometryUtils.js';
+
 const DISABLE_DEACTIVATION = 4;
 const STEP_SIMULATION = 1;
 const PHYSICS_SPEED = 0.01;
 const DEFAULT_GRAVITY = -9.8;
 const DEFAULT_MARGIN = 0.01;
+
+const DEFAULT_FRICTION = 1;
+const DEFAULT_ROLLING_FRICTION = 0.05;
+const DEFAULT_RESTITUTION = 0.1;
+const DEFAULT_LINEAR_DAMPING = 0.1;
+const DEFAULT_ANGULAR_DAMPING = 0.1;
 
 export default class PhysicsHelper {
 
@@ -18,7 +26,7 @@ export default class PhysicsHelper {
 			this.dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration );
 			const softBodySolver = new Ammo.btDefaultSoftBodySolver();
 			this.physicsWorld = new Ammo.btSoftRigidDynamicsWorld(this.dispatcher, broadphase, solver, collisionConfiguration, softBodySolver );
-			//this.softBodyHelpers = new Ammo.btSoftBodyHelpers();
+			this.softBodyHelpers = new Ammo.btSoftBodyHelpers();
 		} else {
 			const collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
 			this.dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration);
@@ -32,9 +40,10 @@ export default class PhysicsHelper {
 
 		this.transformAux1 = new Ammo.btTransform();
 
-		this.rigidBodies = [];
-
 		this.allBodies = [];
+		this.rigidBodies = [];
+		this.clothBodies = [];
+		this.softBodies = [];
 
 		if (margin === undefined) margin = DEFAULT_MARGIN;
 		this.margin = margin;
@@ -49,17 +58,21 @@ export default class PhysicsHelper {
 		for (var i = 0; i < userdata.userData.physics.length; i++) {
 			var udata = userdata.userData.physics[i];
 			if (udata.data.type == 'rigidBox')
-				this.createRigidBodyFromBox(udata.node, udata.data.mass);
+				this.createRigidBodyFromBox(udata.node, udata.data);
 			if (udata.data.type == 'rigidSphere')
-				this.createRigidBodyFromSphere(udata.node, udata.data.mass);
+				this.createRigidBodyFromSphere(udata.node, udata.data);
 			if (udata.data.type == 'rigidOctahedron')
-				this.createRigidBodyFromOctahedron(udata.node, udata.data.mass);
+				this.createRigidBodyFromOctahedron(udata.node, udata.data);
 			if (udata.data.type == 'rigidCylinder')
-				this.createRigidBodyFromCylinder(udata.node, udata.data.mass);
+				this.createRigidBodyFromCylinder(udata.node, udata.data);
+			if (udata.data.type == 'cloth')
+				this.createCloth(udata.node, udata.data);
+			if (udata.data.type == 'softBody')
+				this.createSoftVolume(udata.node, udata.data);
 		}
 	}
 
-	createRigidBodyFromBox(threeObject, mass) {
+	createRigidBodyFromBox(threeObject, data) {
 		var shape = new Ammo.btBoxShape(
 			new Ammo.btVector3(
 				threeObject.geometry.parameters.width * threeObject.scale.x * 0.5,
@@ -67,26 +80,27 @@ export default class PhysicsHelper {
 				threeObject.geometry.parameters.depth * threeObject.scale.z * 0.5
 			)
 		);
-		var body = this.createRigidBody(threeObject, shape, mass);
+		var body = this.createRigidBody(threeObject, shape, data);
 		return body;
 	}
 
-	createRigidBodyFromSphere(threeObject, mass) {
+	createRigidBodyFromSphere(threeObject, data) {
 		var shape = new Ammo.btSphereShape(threeObject.geometry.parameters.radius * threeObject.scale.x);
-		return this.createRigidBody(threeObject, shape, mass);
+		return this.createRigidBody(threeObject, shape, data);
 	}
 
-	createRigidBodyFromCylinder(threeObject, mass) {
+	createRigidBodyFromCylinder(threeObject, data) {
 		let radiusTop = threeObject.geometry.parameters.radiusTop * threeObject.scale.x;
 		let radiusBottom = threeObject.geometry.parameters.radiusBottom * threeObject.scale.x;
 		let height = threeObject.geometry.parameters.height * threeObject.scale.y;
-		var shape = new Ammo.btCylinderShape(new Ammo.btVector3(radiusTop, height * 0.5, radiusBottom));
-		return this.createRigidBody(threeObject, shape, mass);
+		var radius = (radiusTop + radiusBottom) / 2;
+		var shape = new Ammo.btCylinderShape(new Ammo.btVector3(radius, height * 0.5, radius));
+		return this.createRigidBody(threeObject, shape, data);
 	}
 
-	createRigidBodyFromOctahedron(threeObject, mass) {
+	createRigidBodyFromOctahedron(threeObject, data) {
 		var shape = new Ammo.btSphereShape(threeObject.geometry.parameters.radius * threeObject.scale.x);
-		return this.createRigidBody(threeObject, shape, mass);
+		return this.createRigidBody(threeObject, shape, data);
 	}
 
 	// Set pointer back to the three object
@@ -96,51 +110,208 @@ export default class PhysicsHelper {
 		body.setUserPointer( btVecUserData );
 	}
 
-	createRigidBody(threeObject, physicsShape, mass) {
+	moveToScene(threeObject) {
 		if (threeObject.parent && threeObject.parent !== this.scene) {
+			threeObject.visible = threeObject.visible && threeObject.parent.visible;
 			threeObject.parent.updateWorldMatrix();
 			threeObject.updateWorldMatrix();
-			var position = threeObject.localToWorld(new THREE.Vector3(0, 0, 0));
+			var pos = new THREE.Vector3();
+			threeObject.getWorldPosition(pos);
+			var quat = new THREE.Quaternion();
+			threeObject.getWorldQuaternion(quat);
 			threeObject.parent.remove(threeObject);
-			threeObject.position.copy(position);
+			threeObject.position.copy(pos);
+			threeObject.quaternion.copy(quat);
 			threeObject.updateWorldMatrix();
 			this.scene.add(threeObject);
 		}
-		let pos = threeObject.position;
-		let quat = threeObject.quaternion;
+	}
+
+	createRigidBody(threeObject, physicsShape, data) {
+		data = data || [];
+		this.moveToScene(threeObject);
+		var position = threeObject.position;
+		var quaternion = threeObject.quaternion;
 
 		var transform = new Ammo.btTransform();
 		transform.setIdentity();
-		transform.setOrigin( new Ammo.btVector3( pos.x, pos.y, pos.z ) );
-		transform.setRotation( new Ammo.btQuaternion( quat.x, quat.y, quat.z, quat.w ) );
-		var motionState = new Ammo.btDefaultMotionState( transform );
+		transform.setOrigin(new Ammo.btVector3(position.x, position.y, position.z));
+		transform.setRotation(new Ammo.btQuaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w));
+		var motionState = new Ammo.btDefaultMotionState(transform);
 
-		var localInertia = new Ammo.btVector3( 0, 0, 0 );
+		var localInertia = new Ammo.btVector3(0, 0, 0);
 		physicsShape.setMargin(this.margin);
-		physicsShape.calculateLocalInertia(mass, localInertia );
+		physicsShape.calculateLocalInertia(data.mass, localInertia );
 
-		var rbInfo = new Ammo.btRigidBodyConstructionInfo( mass, motionState, physicsShape, localInertia );
+		var rbInfo = new Ammo.btRigidBodyConstructionInfo(data.mass, motionState, physicsShape, localInertia);
 		var body = new Ammo.btRigidBody( rbInfo );
 
 		threeObject.userData.physicsBody = body;
 
-		if (threeObject.userData.physics && threeObject.userData.physics.mass == 0)
+		if (threeObject.userData.physics && data.mass == 0)
 			this.addUserPointer(body, threeObject);
 
 		this.allBodies.push(threeObject);
 
-		if (mass > 0) {
+		if (data.mass > 0) {
 			this.rigidBodies.push(threeObject);
 			body.setActivationState(DISABLE_DEACTIVATION);
 		}
 
-		// EXPERIMENT
-		body.setRestitution(0.8);
-		body.setFriction(1);
-		body.setRollingFriction(0.05);
+		// PHYSICAL PARAMETERS
+		body.setRestitution(data.restitution || DEFAULT_RESTITUTION);
+		body.setFriction(data.friction || DEFAULT_FRICTION);
+		body.setRollingFriction(data.rollingFriction || DEFAULT_ROLLING_FRICTION);
+		body.setDamping(data.linearDamping || DEFAULT_LINEAR_DAMPING, data.angularDamping || DEFAULT_ANGULAR_DAMPING);
 
 		this.physicsWorld.addRigidBody(body);
 		return body;
+	}
+
+	isEqual( x1, y1, z1, x2, y2, z2 ) {
+		const delta = 0.000001;
+		return Math.abs( x2 - x1 ) < delta &&
+				Math.abs( y2 - y1 ) < delta &&
+				Math.abs( z2 - z1 ) < delta;
+
+	}
+
+	mapIndices( bufGeometry, indexedBufferGeom ) {
+		// Creates ammoVertices, ammoIndices and ammoIndexAssociation in bufGeometry
+		const vertices = bufGeometry.attributes.position.array;
+		const idxVertices = indexedBufferGeom.attributes.position.array;
+		const indices = indexedBufferGeom.index.array;
+
+		const numIdxVertices = idxVertices.length / 3;
+		const numVertices = vertices.length / 3;
+
+		bufGeometry.ammoVertices = idxVertices;
+		bufGeometry.ammoIndices = indices;
+		bufGeometry.ammoIndexAssociation = [];
+
+		for ( let i = 0; i < numIdxVertices; i ++ ) {
+			const association = [];
+			bufGeometry.ammoIndexAssociation.push( association );
+			const i3 = i * 3;
+			for ( let j = 0; j < numVertices; j ++ ) {
+				const j3 = j * 3;
+				if (this.isEqual( idxVertices[ i3 ], idxVertices[ i3 + 1 ], idxVertices[ i3 + 2 ],
+					vertices[ j3 ], vertices[ j3 + 1 ], vertices[ j3 + 2 ] ) ) {
+					association.push( j3 );
+				}
+			}
+		}
+	}
+
+	processGeometry( bufGeometry ) {
+		// Ony consider the position values when merging the vertices
+		const posOnlyBufGeometry = new THREE.BufferGeometry();
+		posOnlyBufGeometry.setAttribute('position', bufGeometry.getAttribute('position'));
+		posOnlyBufGeometry.setIndex(bufGeometry.getIndex());
+
+		// Merge the vertices so the triangle soup is converted to indexed triangles
+		const indexedBufferGeom = BufferGeometryUtils.mergeVertices(posOnlyBufGeometry);
+
+		// Create index arrays mapping the indexed vertices to bufGeometry vertices
+		this.mapIndices( bufGeometry, indexedBufferGeom );
+
+	}
+
+	createSoftVolume(threeObject, data) {
+		this.moveToScene(threeObject);
+		var bufferGeom = threeObject.geometry.clone();
+		var material =  threeObject.material.clone();
+		var position = threeObject.position.clone();
+		var quaternion = threeObject.quaternion.clone();
+		this.scene.remove(threeObject);
+		var pressure = 0.9;
+		this.processGeometry(bufferGeom);
+
+		threeObject = new THREE.Mesh(bufferGeom, material);
+		threeObject.position.set(position.x, position.y, position.z);
+		threeObject.quaternion.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
+		threeObject.castShadow = true;
+		threeObject.receiveShadow = true;
+		threeObject.frustumCulled = false;
+		this.scene.add( threeObject );
+
+		//console.log(threeObject);
+
+		// Volume physic object
+		const volumeSoftBody = this.softBodyHelpers.CreateFromTriMesh(
+			this.physicsWorld.getWorldInfo(),
+			bufferGeom.ammoVertices,
+			bufferGeom.ammoIndices,
+			bufferGeom.ammoIndices.length / 3,
+			true
+		);
+
+		const sbConfig = volumeSoftBody.get_m_cfg();
+		sbConfig.set_viterations( 40 );
+		sbConfig.set_piterations( 40 );
+
+		// Soft-soft and soft-rigid collisions
+		sbConfig.set_collisions( 0x11 );
+
+		// Friction
+		sbConfig.set_kDF( 0.1 );
+		// Damping
+		sbConfig.set_kDP( 0.01 );
+		// Pressure
+		sbConfig.set_kPR( pressure );
+		// Stiffness
+		volumeSoftBody.get_m_materials().at( 0 ).set_m_kLST( 0.9 );
+		volumeSoftBody.get_m_materials().at( 0 ).set_m_kAST( 0.9 );
+
+		volumeSoftBody.setTotalMass(data.mass, false);
+		Ammo.castObject( volumeSoftBody, Ammo.btCollisionObject ).getCollisionShape().setMargin(this.margin);
+		this.physicsWorld.addSoftBody(volumeSoftBody, 1, - 1);
+		threeObject.userData.physicsBody = volumeSoftBody;
+		// Disable deactivation
+		volumeSoftBody.setActivationState(DISABLE_DEACTIVATION);
+
+		this.softBodies.push( threeObject );
+	}
+
+	createCloth(threeObject, data) {
+		data = data || [];
+
+		const clothWidth = threeObject.geometry.parameters.width;
+		const clothHeight = threeObject.geometry.parameters.height;
+		const clothNumSegmentsZ = clothWidth * 5;
+		const clothNumSegmentsY = clothHeight * 5;
+		const clothPos = threeObject.position;
+
+		const clothCorner00 = new Ammo.btVector3( clothPos.x, clothPos.y + clothHeight, clothPos.z );
+		const clothCorner01 = new Ammo.btVector3( clothPos.x, clothPos.y + clothHeight, clothPos.z - clothWidth );
+		const clothCorner10 = new Ammo.btVector3( clothPos.x, clothPos.y, clothPos.z );
+		const clothCorner11 = new Ammo.btVector3( clothPos.x, clothPos.y, clothPos.z - clothWidth );
+		const clothSoftBody = this.softBodyHelpers.CreatePatch( this.physicsWorld.getWorldInfo(), clothCorner00, clothCorner01, clothCorner10, clothCorner11, clothNumSegmentsZ + 1, clothNumSegmentsY + 1, 0, true);
+		const sbConfig = clothSoftBody.get_m_cfg();
+		sbConfig.set_viterations( 10 );
+		sbConfig.set_piterations( 10 );
+
+		clothSoftBody.setTotalMass(data.mass, false );
+		Ammo.castObject( clothSoftBody, Ammo.btCollisionObject ).getCollisionShape().setMargin(this.margin * 3 );
+		this.physicsWorld.addSoftBody(clothSoftBody, 1, - 1 );
+		threeObject.userData.physicsBody = clothSoftBody;
+		// Disable deactivation
+		clothSoftBody.setActivationState(DISABLE_DEACTIVATION);
+		this.clothBodies.push(threeObject);
+
+		this.moveToScene(threeObject);
+
+		// anchors
+		const influence = 0.5;
+		var anchors = data.anchors || [];
+		for (var i = 0; i < anchors.length; i++) {
+			var a = threeObject.parent.getObjectByName(anchors[i].name);
+			//this.moveToScene(a);
+			//console.log(a);
+			clothSoftBody.appendAnchor( 0, a.userData.physicsBody, false, influence );
+			clothSoftBody.appendAnchor( clothNumSegmentsZ, a.userData.physicsBody, false, influence );
+		}
+
 	}
 
 	update(event) {
@@ -149,12 +320,80 @@ export default class PhysicsHelper {
 		// Step world
 		this.physicsWorld.stepSimulation(deltaTime * PHYSICS_SPEED, STEP_SIMULATION);
 
+		// Update cloth
+		for (let i = this.clothBodies.length - 1; i >= 0; i-- ) {
+			const softBody = this.clothBodies[i].userData.physicsBody;
+			const geometry = this.clothBodies[i].geometry;
+			const clothPositions = geometry.attributes.position.array;
+			const numVerts = clothPositions.length / 3;
+			const nodes = softBody.get_m_nodes();
+			let indexFloat = 0;
+
+			for ( let i = 0; i < numVerts; i ++ ) {
+				const node = nodes.at( i );
+				const nodePos = node.get_m_x();
+				clothPositions[ indexFloat ++ ] = nodePos.x();
+				clothPositions[ indexFloat ++ ] = nodePos.y();
+				clothPositions[ indexFloat ++ ] = nodePos.z();
+			}
+
+			geometry.computeVertexNormals();
+			geometry.attributes.position.needsUpdate = true;
+			geometry.attributes.normal.needsUpdate = true;
+		}
+
+		// Update soft volumes
+		for ( let i = 0, il = this.softBodies.length; i < il; i ++ ) {
+			const volume = this.softBodies[i];
+			const geometry = volume.geometry;
+			const softBody = volume.userData.physicsBody;
+			const volumePositions = geometry.attributes.position.array;
+			const volumeNormals = geometry.attributes.normal.array;
+			const association = geometry.ammoIndexAssociation;
+			const numVerts = association.length;
+			const nodes = softBody.get_m_nodes();
+			for ( let j = 0; j < numVerts; j ++ ) {
+
+				const node = nodes.at( j );
+				const nodePos = node.get_m_x();
+				const x = nodePos.x();
+				const y = nodePos.y();
+				const z = nodePos.z();
+				const nodeNormal = node.get_m_n();
+				const nx = nodeNormal.x();
+				const ny = nodeNormal.y();
+				const nz = nodeNormal.z();
+
+				const assocVertex = association[ j ];
+
+				for ( let k = 0, kl = assocVertex.length; k < kl; k ++ ) {
+
+					let indexVertex = assocVertex[ k ];
+					volumePositions[ indexVertex ] = x;
+					volumeNormals[ indexVertex ] = nx;
+					indexVertex ++;
+					volumePositions[ indexVertex ] = y;
+					volumeNormals[ indexVertex ] = ny;
+					indexVertex ++;
+					volumePositions[ indexVertex ] = z;
+					volumeNormals[ indexVertex ] = nz;
+
+				}
+
+			}
+
+			geometry.attributes.position.needsUpdate = true;
+			geometry.attributes.normal.needsUpdate = true;
+			geometry.needsUpdate = true;
+		}
+
 		// Update rigid bodies
 		for (let i = this.rigidBodies.length - 1; i >= 0; i-- ) {
 			const objThree = this.rigidBodies[ i ];
 			const objPhys = objThree.userData.physicsBody;
 
 			if (objThree.position.y < - 25) {
+				// !!! REMOVE OBJECT OFF THE SCREEN !!!
 				this.scene.remove(objThree);
 				this.rigidBodies.splice(i, 1);
 				this.physicsWorld.removeRigidBody(objPhys);

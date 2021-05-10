@@ -1,4 +1,4 @@
-import {
+ import {
 	BobState,
 	STATE_STANDING,
 	STATE_IDLE,

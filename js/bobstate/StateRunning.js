@@ -26,7 +26,6 @@ export default class StateRunning extends BobState {
 	}
 
 	update(event) {
-
 		if (!this.antbob.onGround) {
 			this.changeState(STATE_FALLING);
 			return;

@@ -7,7 +7,6 @@ export default class SoundHelper {
 		this.sound.setAttribute("controls", "none");
 		this.sound.style.display = "none";
 		document.body.appendChild(this.sound);
-		this.setLoop(loop);
 	}
 
 	play() {
@@ -16,10 +15,6 @@ export default class SoundHelper {
 
 	stop() {
 		this.sound.pause();
-	}
-
-	setLoop(loop) {
-
 	}
 
 }

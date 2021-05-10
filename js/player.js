@@ -1,4 +1,5 @@
 import PhysicsHelper from './physics.js';
+import StairsHelper from './stairs.js';
 import UserdataHelper from './userdata.js';
 import AnimationHelper from './animation.js';
 import SoundHelper from './sound.js';
@@ -53,7 +54,13 @@ export default class Player {
 		if ( this.project.physicallyCorrectLights !== undefined ) this.renderer.physicallyCorrectLights = this.project.physicallyCorrectLights;
 
 		this.setScene(this.loader.parse(json.scene));
-		this.setCamera(this.loader.parse(json.camera));
+		if (this.scene.userData && this.scene.userData.camera) {
+			this.setCamera(this.scene.getObjectByName(this.scene.userData.camera.name));
+		}
+
+		if (this.camera == null) {
+			this.setCamera(this.loader.parse(json.camera));
+		}
 
 		this.events = {
 			init: [],
@@ -100,8 +107,15 @@ export default class Player {
 		}
 		this.dispatch(this.events.init, arguments);
 
+		//
 		// MY STUFF
+		//
+
+		// USERDATA
 		this.userdata = new UserdataHelper(this.scene);
+
+		// STAIRS
+		var stairs = new StairsHelper(this);
 
 		// PHYSICS
 		this.physics = new PhysicsHelper(this);
@@ -115,8 +129,8 @@ export default class Player {
 		this.events.update.push((e) => interaction.update(e));
 
 		// SOUND
-		this.sound = new SoundHelper('sound/forest_1.mp3');
-		this.sound.play();
+		//this.sound = new SoundHelper('sound/forest_1.mp3');
+		//this.sound.play();
 
 		// EXPERIMENT
 		//var experiment = new MyExperiment(this);
@@ -163,12 +177,23 @@ export default class Player {
 
 		var time = performance.now();
 
+		// EVENTS
 		try {
 			this.dispatch( this.events.update, { time: time, delta: time - this.prevTime } );
 		} catch ( e ) {
 			console.error( ( e.message || e ), ( e.stack || '' ) );
 		}
 
+		// CAMERA
+		if (this.camera.userData) {
+			if (this.camera.userData.type == 'follow') {
+				var pos = this.camera.userData.position;
+				this.camera.position.set(this.antbob.group.position.x + pos.x, this.antbob.group.position.y + pos.y, this.antbob.group.position.z + pos.z);
+			}
+			this.camera.lookAt(this.antbob.group.position);
+		}
+
+		// RENDER
 		this.renderer.render(this.scene, this.camera);
 		this.prevTime = time;
 	}

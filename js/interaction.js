@@ -36,13 +36,15 @@ export default class InteractionHelper {
 			if (this.target.data.interact.type == 'exit') {
 				this.ui.loadLevel(this.target.data.interact.level);
 				return;
-			} else if ((this.target.data.interact.type == 'talk')) {
+			}
+			if ((this.target.data.interact.type == 'talk')) {
 				this.ui.showTalkDialog(this.target.data);
 			} else if (this.target.data.interact.type == 'item') {
 				this.antbob.setGun(this.target);
 				this.ui.showActiveItem(this.target.data.name, this.target.data.interact.text);
 				this.target.node.visible = false;
 				this.target.data.interact = undefined;
+				this.userdata.removeUserData('interaction', this.target);
 			} else if (this.target.data.interact.type == 'vehicle') {
 				this.antbob.setVehicle();
 			}
@@ -50,8 +52,13 @@ export default class InteractionHelper {
 			return;
 		}
 
-		if (this.timeout <= 0 && this.antbob.onGround) {
+		if (this.timeout <= 0) {
 			this.timeout = 200;
+			if (!this.antbob.onGround) {
+				this.target = null;
+				this.ui.hideInteraction();
+				return;
+			}
 			var nearest = this.findNearest(this.userdata);
 			if (nearest) {
 				if (nearest !== this.target) {

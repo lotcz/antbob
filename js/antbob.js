@@ -57,12 +57,13 @@ export default class AntBob {
 		this.firing = 0;
 		this.collisionRequestSent = false;
 
-		this.animation = new AnimationHelper(this.player, 'models/antbob-animations.glb?v=2', (model) => this.onAnimationLoaded(model));
+		this.animation = new AnimationHelper(this.player, 'models/antbob-animations.glb?v=10', (model) => this.onAnimationLoaded(model));
 
 		this.group = new THREE.Group();
-		var entry = this.player.scene.getObjectByName('Exit');
+		var entry = null; // this.player.scene.getObjectByName('Start');
+		if (entry == null) entry = this.player.scene.getObjectByName('Exit');
 		if (entry) {
-			this.group.position.copy(entry.position);
+			entry.getWorldPosition(this.group.position);
 			this.direction.applyQuaternion(entry.quaternion);
 		}
 		this.player.scene.add(this.group);
@@ -123,6 +124,10 @@ export default class AntBob {
 	}
 
 	onAnimationLoaded(model) {
+		//console.log(model);
+		var leftHandBone = model.getObjectByName("mixamorigLeftHand");
+		leftHandBone.add(new THREE.Mesh(new THREE.IcosahedronGeometry(0.03, 3), new THREE.MeshBasicMaterial({color:0xFFFFFF})));
+
 		this.processMaterials(model);
 		this.model = model;
 		this.group.add(model);
@@ -133,11 +138,18 @@ export default class AntBob {
 		this.dummy = new THREE.Mesh(new THREE.IcosahedronGeometry(DUMMY_BODY_SIZE, 3), new THREE.MeshBasicMaterial({color:0xFFFFFF}));
 		this.dummy.position.copy(this.group.position);
 		this.dummy.userData.antbob = true;
-		//this.player.scene.add(this.dummy);
-		this.body = this.physics.createRigidBody(this.dummy, shape, BOB_WEIGHT);
-		this.body.setRestitution(0);
-		this.body.setDamping(0, 0);
+
+		this.body = this.physics.createRigidBody(
+			this.dummy,
+			shape,
+			{
+				mass: BOB_WEIGHT,
+				restitution: 0.5
+			}
+		);
 		this.physics.addUserPointer(this.body, this.dummy);
+
+		//this.player.scene.add(this.dummy);
 
 		this.changeState(STATE_STANDING);
 
@@ -182,13 +194,6 @@ export default class AntBob {
 		// MODEL ORIENTATION
 		this.group.lookAt(this.group.position.clone().add(this.direction));
 
-		// CAMERA
-		if (this.player.camera.userData && this.player.camera.userData.type == 'follow') {
-			var pos = this.player.camera.userData.position;
-			this.player.camera.position.set(this.group.position.x + pos.x, this.group.position.y + pos.y, this.group.position.z + pos.z);
-		}
-		this.player.camera.lookAt(this.group.position);
-
 		// MODEL ANIMATION
 		this.animation.update(event);
 
@@ -198,6 +203,7 @@ export default class AntBob {
 				this.shootSound.play();
 				this.firing = 500;
 				var bulletSize = Math.max(Math.random(), 0.2) * 0.4;
+				var objectData = { mass: bulletSize};
 				var bullet, bulletBody;
 				var color = new THREE.Color(Math.random(), Math.random(), Math.random());
 				var material = new THREE.MeshLambertMaterial({color:color});
@@ -206,17 +212,17 @@ export default class AntBob {
 					bullet = new THREE.Mesh(new THREE.IcosahedronGeometry(bulletSize, 3), material);
 					bullet.position.set(this.dummy.position.x, this.dummy.position.y + (bulletSize) + 0.25, this.dummy.position.z);
 					this.player.scene.add(bullet);
-					bulletBody = this.physics.createRigidBodyFromSphere(bullet, bulletSize);
+					bulletBody = this.physics.createRigidBodyFromSphere(bullet, objectData);
 				} else if (random < 0.66) {
 					bullet = new THREE.Mesh(new THREE.BoxGeometry(bulletSize, bulletSize, bulletSize), material);
 					bullet.position.set(this.dummy.position.x, this.dummy.position.y + (bulletSize) + 0.25, this.dummy.position.z);
 					this.player.scene.add(bullet);
-					bulletBody = this.physics.createRigidBodyFromBox(bullet, bulletSize);
+					bulletBody = this.physics.createRigidBodyFromBox(bullet, objectData);
 				} else {
 					bullet = new THREE.Mesh(new THREE.CylinderGeometry(bulletSize * 0.5, bulletSize * 0.5, bulletSize), material);
 					bullet.position.set(this.dummy.position.x, this.dummy.position.y + (bulletSize) + 0.25, this.dummy.position.z);
 					this.player.scene.add(bullet);
-					bulletBody = this.physics.createRigidBodyFromCylinder(bullet, bulletSize);
+					bulletBody = this.physics.createRigidBodyFromCylinder(bullet, objectData);
 				}
 
 				bulletBody.setFriction(0.3);
