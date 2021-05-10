@@ -289,8 +289,8 @@ export default class PhysicsHelper {
 		const clothCorner11 = new Ammo.btVector3( clothPos.x, clothPos.y, clothPos.z - clothWidth );
 		const clothSoftBody = this.softBodyHelpers.CreatePatch( this.physicsWorld.getWorldInfo(), clothCorner00, clothCorner01, clothCorner10, clothCorner11, clothNumSegmentsZ + 1, clothNumSegmentsY + 1, 0, true);
 		const sbConfig = clothSoftBody.get_m_cfg();
-		sbConfig.set_viterations( 10 );
-		sbConfig.set_piterations( 10 );
+		sbConfig.set_viterations(40);
+		sbConfig.set_piterations(40);
 
 		clothSoftBody.setTotalMass(data.mass, false );
 		Ammo.castObject( clothSoftBody, Ammo.btCollisionObject ).getCollisionShape().setMargin(this.margin * 3 );

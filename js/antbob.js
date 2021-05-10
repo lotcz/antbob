@@ -60,7 +60,7 @@ export default class AntBob {
 		this.animation = new AnimationHelper(this.player, 'models/antbob-animations.glb?v=10', (model) => this.onAnimationLoaded(model));
 
 		this.group = new THREE.Group();
-		var entry = null;// this.player.scene.getObjectByName('Start');
+		var entry = this.player.scene.getObjectByName('Start');
 		if (entry == null) entry = this.player.scene.getObjectByName('Exit');
 		if (entry) {
 			entry.getWorldPosition(this.group.position);
