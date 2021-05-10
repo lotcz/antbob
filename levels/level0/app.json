@@ -21,7 +21,7 @@
 			"type": "PerspectiveCamera",
 			"name": "Camera",
 			"layers": 1,
-			"matrix": [-0.190875,0,0.981614,0,0.492448,0.865059,0.095756,0,-0.849154,0.501671,-0.165118,0,9.113614,0.831274,-5.591217,1],
+			"matrix": [-0.474626,0,-0.880187,0,-0.63783,0.689115,0.343939,0,0.60655,0.724652,-0.327072,0,4.697966,4.265095,-6.790215,1],
 			"fov": 50,
 			"zoom": 1,
 			"near": 0.01,
@@ -537,11 +537,11 @@
 				"depthSegments": 1
 			},
 			{
-				"uuid": "3C54F550-CFAD-45BD-8FF5-FF2AE767D064",
+				"uuid": "EE27BC4B-7802-4D39-8FB9-C895F5FF9B56",
 				"type": "BoxGeometry",
-				"width": 0.8,
+				"width": 0.7,
 				"height": 0.15,
-				"depth": 0.9,
+				"depth": 0.8,
 				"widthSegments": 10,
 				"heightSegments": 1,
 				"depthSegments": 10
@@ -635,19 +635,19 @@
 				"arc": 6.283185
 			},
 			{
-				"uuid": "80303D9B-7424-4869-8E0E-6BB57C1B9662",
+				"uuid": "575C264F-2B30-4E22-B2FE-C214550CB91C",
 				"type": "BoxGeometry",
 				"width": 2,
-				"height": 0.1,
-				"depth": 0.1,
+				"height": 0.18,
+				"depth": 1.08,
 				"widthSegments": 1,
 				"heightSegments": 1,
 				"depthSegments": 1
 			},
 			{
-				"uuid": "6B34A72C-13B6-459C-9409-B05AA4C9BD14",
+				"uuid": "0DB72A86-2E0D-41AD-AB00-2C7EDFDCD5A3",
 				"type": "PlaneGeometry",
-				"width": 1,
+				"width": 1.68,
 				"height": 1,
 				"widthSegments": 5,
 				"heightSegments": 5
@@ -1359,7 +1359,7 @@
 			{
 				"uuid": "DE78601B-A78A-4B38-8C62-E7450F48D875",
 				"type": "MeshStandardMaterial",
-				"color": 16777215,
+				"color": 1510661,
 				"roughness": 1,
 				"metalness": 0,
 				"emissive": 0,
@@ -3289,13 +3289,13 @@
 										"physics": {
 											"type": "softBody",
 											"mass": 1,
-											"pressure": 0.5,
-											"stiffness": 0.8
+											"pressure": 0.4,
+											"stiffness": 0.7
 										}
 									},
 									"layers": 1,
-									"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,-0.018295,0.151975,-0.159576,1],
-									"geometry": "3C54F550-CFAD-45BD-8FF5-FF2AE767D064",
+									"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,-0.018096,0.151975,-0.21063,1],
+									"geometry": "EE27BC4B-7802-4D39-8FB9-C895F5FF9B56",
 									"material": "E1702956-F9FE-499E-BF6D-34570503D14A"
 								}]
 						},
@@ -3716,7 +3716,7 @@
 					"type": "Group",
 					"name": "ClothGroup",
 					"layers": 1,
-					"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,-1.747645,-0.754808,-2.927872,1],
+					"matrix": [0,0,-1,0,0,1,0,0,1,0,0,0,1.216569,-0.654729,-1.847697,1],
 					"children": [
 						{
 							"uuid": "A7536BE4-D3D0-4CFB-AA14-F20A3B393C6F",
@@ -3729,8 +3729,8 @@
 								}
 							},
 							"layers": 1,
-							"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
-							"geometry": "80303D9B-7424-4869-8E0E-6BB57C1B9662",
+							"matrix": [0.867706,0,0,0,0,0.684793,0,0,0,0,0.291455,0,0,0.484933,-0.160423,1],
+							"geometry": "575C264F-2B30-4E22-B2FE-C214550CB91C",
 							"material": "DE78601B-A78A-4B38-8C62-E7450F48D875"
 						},
 						{
@@ -3741,7 +3741,7 @@
 							"userData": {
 								"physics": {
 									"type": "cloth",
-									"mass": 0.5,
+									"mass": 0.05,
 									"anchors": [
 										{
 											"name": "ClothHolder"
@@ -3750,7 +3750,7 @@
 							},
 							"layers": 1,
 							"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
-							"geometry": "6B34A72C-13B6-459C-9409-B05AA4C9BD14",
+							"geometry": "0DB72A86-2E0D-41AD-AB00-2C7EDFDCD5A3",
 							"material": "CC1586D4-C163-4C76-83D3-C760C6B16FF5"
 						}]
 				}]

@@ -67,8 +67,8 @@ export default class PhysicsHelper {
 				this.createRigidBodyFromOctahedron(udata.node, udata.data);
 			if (udata.data.type == 'rigidCylinder')
 				this.createRigidBodyFromCylinder(udata.node, udata.data);
-			//if (udata.data.type == 'cloth')
-				//this.createCloth(udata.node, udata.data);
+			if (udata.data.type == 'cloth')
+				this.createCloth(udata.node, udata.data);
 			if (udata.data.type == 'softBody')
 				this.createSoftVolume(udata.node, udata.data);
 		}
@@ -223,6 +223,9 @@ export default class PhysicsHelper {
 
 		var bufferGeom = threeObject.geometry.clone();
 		bufferGeom.translate(position.x, position.y, position.z);
+		bufferGeom.rotateX(quaternion.x);
+		bufferGeom.rotateY(quaternion.y);
+		bufferGeom.rotateZ(quaternion.z);
 		this.processGeometry(bufferGeom);
 
 		threeObject = new THREE.Mesh(bufferGeom, material);
@@ -271,9 +274,14 @@ export default class PhysicsHelper {
 
 		const clothWidth = threeObject.geometry.parameters.width;
 		const clothHeight = threeObject.geometry.parameters.height;
+		const material = threeObject.material;
 		const clothNumSegmentsZ = clothWidth * 5;
 		const clothNumSegmentsY = clothHeight * 5;
-		const clothPos = threeObject.position;
+		const clothPos = new THREE.Vector3();
+		threeObject.getWorldPosition(clothPos);
+		clothPos.add(new THREE.Vector3(0, - clothHeight/2, clothHeight/2));
+		const quaternion = new THREE.Quaternion();
+		threeObject.getWorldQuaternion(quaternion);
 
 		const clothCorner00 = new Ammo.btVector3( clothPos.x, clothPos.y + clothHeight, clothPos.z );
 		const clothCorner01 = new Ammo.btVector3( clothPos.x, clothPos.y + clothHeight, clothPos.z - clothWidth );
@@ -287,24 +295,34 @@ export default class PhysicsHelper {
 		clothSoftBody.setTotalMass(data.mass, false );
 		Ammo.castObject( clothSoftBody, Ammo.btCollisionObject ).getCollisionShape().setMargin(this.margin * 3 );
 		this.physicsWorld.addSoftBody(clothSoftBody, 1, - 1 );
-		threeObject.userData.physicsBody = clothSoftBody;
-		// Disable deactivation
 		clothSoftBody.setActivationState(DISABLE_DEACTIVATION);
-		this.clothBodies.push(threeObject);
 
-		this.moveToScene(threeObject);
+		console.log(threeObject);
 
 		// anchors
 		const influence = 0.5;
 		var anchors = data.anchors || [];
 		for (var i = 0; i < anchors.length; i++) {
-			var a = threeObject.parent.getObjectByName(anchors[i].name);
+			var a = this.scene.getObjectByName(anchors[i].name);
 			//this.moveToScene(a);
 			//console.log(a);
 			clothSoftBody.appendAnchor( 0, a.userData.physicsBody, false, influence );
 			clothSoftBody.appendAnchor( clothNumSegmentsZ, a.userData.physicsBody, false, influence );
 		}
 
+		threeObject.parent.remove(threeObject);
+
+		const clothGeometry = new THREE.PlaneGeometry(clothWidth, clothHeight, clothNumSegmentsZ, clothNumSegmentsY);
+		clothGeometry.rotateY(Math.PI * 0.5);
+		clothGeometry.translate( clothPos.x, clothPos.y + clothHeight * 0.5, clothPos.z - clothWidth * 0.5 );
+
+		var cloth = new THREE.Mesh(clothGeometry, material);
+		cloth.castShadow = true;
+		cloth.receiveShadow = true;
+		cloth.userData.physicsBody = clothSoftBody;
+		this.clothBodies.push(cloth);
+
+		this.scene.add(cloth);
 	}
 
 	update(event) {
