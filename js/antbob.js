@@ -42,12 +42,14 @@ const ROTATION_SPEED = 0.004;
 
 export default class AntBob {
 
-	constructor(player, physics, controls, onloaded) {
+	constructor(player, onloaded) {
 		this.player = player;
-		this.physics = physics;
-		this.controls = controls;
+		this.story = player.story;
+		this.physics = player.physics;
+		this.controls = player.controls;
 		this.onLoaded = onloaded;
 
+		this.loaded = false;
 		this.direction = X_AXIS.clone();
 		this.onGround = true;
 		this.jumpTimeout = 0;
@@ -57,16 +59,21 @@ export default class AntBob {
 		this.firing = 0;
 		this.collisionRequestSent = false;
 
-		this.animation = new AnimationHelper(this.player, 'models/antbob-animations.glb?v=10', (model) => this.onAnimationLoaded(model));
-
 		this.group = new THREE.Group();
-		var entry = this.player.scene.getObjectByName('Start');
-		if (entry == null) entry = this.player.scene.getObjectByName('Exit');
+		this.player.scene.add(this.group);
+
+		var entry;
+		if (this.story.getLastLevel()) {
+			entry = this.player.scene.getObjectByName('Exit-' + this.story.getLastLevel());
+		} else {
+			entry = this.player.scene.getObjectByName('Start');
+		}
 		if (entry) {
 			entry.getWorldPosition(this.group.position);
 			this.direction.applyQuaternion(entry.quaternion);
 		}
-		this.player.scene.add(this.group);
+
+		this.animation = new AnimationHelper(this.player, 'models/antbob-animations.glb?v=10', (model) => this.onAnimationLoaded(model));
 
 		// STATES
 		this.states = []
@@ -82,8 +89,6 @@ export default class AntBob {
 		// SOUND
 		this.dropSound = new SoundHelper('sound/jump_drop.ogg', false);
 		this.shootSound = new SoundHelper('sound/shoot.ogg', false);
-
-		this.loaded = false;
 	}
 
 	processMaterials(model) {

@@ -1,0 +1,93 @@
+CONTROLS
+========
+
+- walk/run
+- hop/jump
+- interact/take/talk
+- throw/fire
+
+can have ammo (stones, ...) and throw it
+can hold an item and throw it, runs slower
+can have a backpack to hold special ammo, then "shoot" it, runs slower
+
+STORY
+=====
+
+Anthill is under a lockdown because of unknown disease killing all insects. Bob and Alice can't go outside to play and are bored.
+Alice convince Bob to open a tunnel to the playground. There, Bob meets the sick bee and when he returns to the anthill, everyone gets sick.
+Bob is then cast out and must find a cure.
+
+Bob meets Reds - red ants living in tee-pees, sworn enemies of the black ants.
+Reds do not suffer from the disease and offer a help to Bob if he first help them with humans camping in the area.
+
+He must get a liquid-holding backpack, suck tree sap in it and spill it over a toast in a food box.
+He must put cigarettes off by pushing it off the table first and then using Bigfoot to push it into a pond.
+
+As a reward, Reds show Bob where to get cedar resin to cure the anthill.
+Bob must transport the resin on the Bigfoot to the Playground to crush it into pieces.
+Bob bring piece of resin to the Queen and wins.
+
+LEVELS
+======
+
+0. Home
+
+	Learn moving and activating things, receive pheromessage and leave.
+
+	Switching light on/off.
+
+	Harvest honey dew from hanging "bug".
+
+	Uncle Bob's backpack is there, but cannot be taken now. Uncle Bob won't also let Bob run around.
+
+	"My dear ants, there is an unknown disease outside that is killing ants and other insects.
+	Everyone must stay inside our anthill until situation gets better.
+	Your Queen."
+
+	(Ant Bob Song)
+
+	[ants are sick]
+	Bob can take backpack.
+	(Mr. Gonzo sad song)
+
+1. City
+
+	See doors to many other ant homes. Some city rush. Meet Bigfoot driver Bob.
+	Run and jump through "vast" ant city.
+
+	Paternoster - Flea powered.
+
+ 	[ants are sick]
+	Driver Bob will give out Bigfoot keys.
+
+	{ exit to Home, School, gate to Pond}
+
+2. School
+	Meet Alice, meet little ant students that are lively, learn jumping, unlock exit to Playground,
+
+	{exit to City, tunnel to Playground}
+
+3. Playground
+	mass/physics usage, avoid spider, save ladybug from spider, sick bee
+	spider & web (throw it a bait, then sneak under)
+	ladybug (ants eat her in the end)
+
+	{exit to School, Camp}
+
+4. Camp
+	Red Ants!
+	Tree camp of the reds is very vertical maze of leaves and stalks.
+
+	"We do not suffer from the disease, because we use cedar resin as a disinfectant."
+	{exit to Pond, Playground}
+
+5. Pond
+	Humans! Climb on a table
+
+	learn driving, put off cigarette by pushing it into water with a vehicle.
+
+	{exit to City, Camp}
+
+6. Queen Lair
+	- centipede
+	crush resin and deliver to queen and eggs

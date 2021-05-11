@@ -297,8 +297,6 @@ export default class PhysicsHelper {
 		this.physicsWorld.addSoftBody(clothSoftBody, 1, - 1 );
 		clothSoftBody.setActivationState(DISABLE_DEACTIVATION);
 
-		console.log(threeObject);
-
 		// anchors
 		const influence = 0.5;
 		var anchors = data.anchors || [];

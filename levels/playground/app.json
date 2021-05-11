@@ -17,17 +17,17 @@
 			"generator": "Object3D.toJSON"
 		},
 		"object": {
-			"uuid": "19FC6868-8720-4D60-8148-1B695FE04B39",
+			"uuid": "3DB9766B-0B18-49B2-BE65-F22659FEF4B8",
 			"type": "PerspectiveCamera",
 			"name": "Camera",
 			"layers": 1,
-			"matrix": [0.90794,0,-0.419101,0,-0.201042,0.877434,-0.435537,0,0.367733,0.479698,0.796656,0,5.855751,7.27898,9.477177,1],
+			"matrix": [0.679686,0,-0.733504,0,-0.215893,0.955704,-0.200052,0,0.701011,0.29433,0.649578,0,9.328736,3.916813,8.644277,1],
 			"fov": 50,
 			"zoom": 1,
 			"near": 0.01,
 			"far": 1000,
 			"focus": 10,
-			"aspect": 1.721573,
+			"aspect": 1.649695,
 			"filmGauge": 35,
 			"filmOffset": 0
 		}
@@ -1357,7 +1357,7 @@
 				{
 					"uuid": "C8EEAC60-989A-4F12-B8CF-58CE0DE04DDB",
 					"type": "Group",
-					"name": "Exit",
+					"name": "Exit-level0",
 					"userData": {
 						"interaction": {
 							"name": "Home",
@@ -2407,7 +2407,7 @@
 				{
 					"uuid": "3BA9C362-EA68-4397-8BC5-5250B2FC689E",
 					"type": "Group",
-					"name": "ExitLevel1",
+					"name": "Exit-level1",
 					"userData": {
 						"interaction": {
 							"name": "Level 1",

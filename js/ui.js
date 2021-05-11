@@ -1,10 +1,15 @@
 import Player from './player.js';
 import Controls from './controls.js';
+import StoryHelper from './story.js';
 
 export default class UI {
 
-	constructor(level) {
+	constructor() {
 		this.controls = new Controls();
+		this.story = window['story'] = new StoryHelper();
+		this.story.load();
+		console.log(this.story.state);
+
 		this.dom = document.getElementById('ui');
 		this.container = document.getElementById('container');
 		this.interactionDialog = document.getElementById('interaction_dialog');
@@ -22,23 +27,24 @@ export default class UI {
 		this.inventoryActiveItemName = document.getElementById('active_item_name');
 		this.inventoryActiveItemText = document.getElementById('active_item_text');
 		this.inventoryActiveItemPortrait = document.getElementById('active_item_portrait');
-		this.player = new Player(this.container, this);
+		this.player = new Player(this);
 
 		this.showInteraction({ name: 'Loading...'});
 		this.player.loadFile(
-			'levels/' + level + '/app.json?v=' + Math.random(),
+			'levels/' + this.story.getLevel() + '/app.json?v=' + Math.random(),
 			() =>  {
-				//this.player.setCamera(this.player.scene.getObjectByName('PerspectiveCamera'));
-				this.player.play();
 				this.hideInteraction();
 				this.container.style.display = 'block';
+				this.player.play();
 			}
 		);
 	}
 
 	loadLevel(name) {
-		window.location = '?level=' + name;
+		this.story.setLevel(name);
+		console.log(this.story.state);
 		this.disposePlayer();
+		window.location = window.location;
 	}
 
 	showInteraction(data) {

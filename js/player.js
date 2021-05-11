@@ -10,10 +10,11 @@ import MyExperiment from './experiment.js';
 
 export default class Player {
 
-	constructor(dom, ui) {
-		this.dom = dom;
+	constructor(ui) {
 		this.ui = ui;
+		this.dom = this.ui.container;
 		this.controls = ui.controls;
+		this.story = ui.story;
 
 		this.renderer = new THREE.WebGLRenderer( { antialias: true } );
 		this.renderer.setPixelRatio( window.devicePixelRatio );
@@ -122,7 +123,7 @@ export default class Player {
 		this.events.update.push((e) => this.physics.update(e));
 
 		// BOB
-		var bob = this.antbob = new AntBob(this, this.physics, this.controls, onBobLoaded);
+		var bob = this.antbob = new AntBob(this, onBobLoaded);
 		this.events.update.push((e) => bob.update(e));
 
 		var interaction = this.interaction = new InteractionHelper(this, this.controls, this.antbob, this.ui);
@@ -173,7 +174,6 @@ export default class Player {
 
 	animate() {
 		if (!this.playing) return;
-		if (!this.renderer) return;
 
 		var time = performance.now();
 
@@ -185,6 +185,7 @@ export default class Player {
 		}
 
 		// CAMERA
+		if (!this.camera) return;
 		if (this.camera.userData) {
 			if (this.camera.userData.type == 'follow') {
 				var pos = this.camera.userData.position;
@@ -194,6 +195,7 @@ export default class Player {
 		}
 
 		// RENDER
+		if (!this.renderer) return;
 		this.renderer.render(this.scene, this.camera);
 		this.prevTime = time;
 	}
