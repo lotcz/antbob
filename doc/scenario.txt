@@ -8,7 +8,7 @@ CONTROLS
 
 can have ammo (stones, ...) and throw it
 can hold an item and throw it, runs slower
-can have a backpack to hold special ammo, then "shoot" it, runs slower
+can have a backpack to hold special ammo, then "shoot" it
 
 STORY
 =====
@@ -64,6 +64,8 @@ LEVELS
 
 2. School
 	Meet Alice, meet little ant students that are lively, learn jumping, unlock exit to Playground,
+
+	Firebug Frank will shine to find a tunnel entrance.
 
 	{exit to City, tunnel to Playground}
 

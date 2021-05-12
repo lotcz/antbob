@@ -77,10 +77,14 @@ export default class StoryHelper {
 		this.triggers = [];
 		// create triggers
 		for (var i = 0; i < userdata.userData.story.length; i++) {
-			var udata = userdata.userData.story[i];
+			let udata = userdata.userData.story[i];
 			if (udata.data.type == 'visible') {
 				this.addTrigger(udata.data.when, true, () => this.makeVisible(udata.node));
 				this.addTrigger(udata.data.when, false, () => this.makeInvisible(udata.node));
+			}
+			if (udata.data.type == 'invisible' || udata.data.type == 'hidden') {
+				this.addTrigger(udata.data.when, true, () => this.makeInvisible(udata.node));
+				this.addTrigger(udata.data.when, false, () => this.makeVisible(udata.node));
 			}
 		}
 

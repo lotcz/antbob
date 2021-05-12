@@ -279,15 +279,23 @@ export default class PhysicsHelper {
 		const clothNumSegmentsY = clothHeight * 5;
 		const clothPos = new THREE.Vector3();
 		threeObject.getWorldPosition(clothPos);
-		clothPos.add(new THREE.Vector3(0, - clothHeight/2, clothHeight/2));
+		//clothPos.add(new THREE.Vector3(0, - clothHeight/2, clothHeight/2));
 		const quaternion = new THREE.Quaternion();
 		threeObject.getWorldQuaternion(quaternion);
+		const clothCornerTopLeft = new Ammo.btVector3(-clothWidth/2, clothHeight/2, 0);
+		const clothCornerTopRight = new Ammo.btVector3(clothWidth/2, clothHeight/2, 0);
+		const clothCornerBottomLeft = new Ammo.btVector3(-clothWidth/2, -clothHeight/2, 0);
+		const clothCornerBottomRight = new Ammo.btVector3(clothWidth/2, -clothHeight/2, 0);
 
-		const clothCorner00 = new Ammo.btVector3( clothPos.x, clothPos.y + clothHeight, clothPos.z );
-		const clothCorner01 = new Ammo.btVector3( clothPos.x, clothPos.y + clothHeight, clothPos.z - clothWidth );
-		const clothCorner10 = new Ammo.btVector3( clothPos.x, clothPos.y, clothPos.z );
-		const clothCorner11 = new Ammo.btVector3( clothPos.x, clothPos.y, clothPos.z - clothWidth );
-		const clothSoftBody = this.softBodyHelpers.CreatePatch( this.physicsWorld.getWorldInfo(), clothCorner00, clothCorner01, clothCorner10, clothCorner11, clothNumSegmentsZ + 1, clothNumSegmentsY + 1, 0, true);
+		const clothSoftBody = this.softBodyHelpers.CreatePatch(this.physicsWorld.getWorldInfo(), clothCornerTopRight, clothCornerTopLeft, clothCornerBottomRight, clothCornerBottomLeft, clothNumSegmentsZ + 1, clothNumSegmentsY + 1, 0, true);
+		//clothSoftBody.rotate(new Ammo.btQuaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w));
+		//clothSoftBody.translate(new Ammo.btVector3(clothPos.x, clothPos.y, clothPos.z));
+		var transform = new Ammo.btTransform();
+		transform.setIdentity();
+		transform.setOrigin(new Ammo.btVector3(clothPos.x, clothPos.y, clothPos.z));
+		transform.setRotation(new Ammo.btQuaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w));
+		clothSoftBody.transform(transform);
+
 		const sbConfig = clothSoftBody.get_m_cfg();
 		sbConfig.set_viterations(40);
 		sbConfig.set_piterations(40);
@@ -311,10 +319,17 @@ export default class PhysicsHelper {
 		threeObject.parent.remove(threeObject);
 
 		const clothGeometry = new THREE.PlaneGeometry(clothWidth, clothHeight, clothNumSegmentsZ, clothNumSegmentsY);
-		clothGeometry.rotateY(Math.PI * 0.5);
-		clothGeometry.translate( clothPos.x, clothPos.y + clothHeight * 0.5, clothPos.z - clothWidth * 0.5 );
+		//clothGeometry.rotateY(Math.PI * 0.5);
+		//clothGeometry.translate(0, clothHeight * 0.5, - clothWidth * 0.5 );
+		clothGeometry.translate(clothPos.x, clothPos.y, clothPos.z);
+		clothGeometry.rotateX(quaternion.x);
+		clothGeometry.rotateY(quaternion.y);
+		clothGeometry.rotateZ(quaternion.z);
 
 		var cloth = new THREE.Mesh(clothGeometry, material);
+		//cloth.position.copy(clothPos);
+		//cloth.quaternion.copy(quaternion);
+
 		//cloth.castShadow = true;
 		//cloth.receiveShadow = true;
 		cloth.userData.physicsBody = clothSoftBody;

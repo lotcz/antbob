@@ -28,17 +28,14 @@ Put this on camera:
 
 ### Physics
 
+	- rigidBox
+	- rigidSphere
+	- rigidCylinder
+
 ```
 {
   "physics": {
     "type": "rigidBox",
-    "mass": 0
-  }
-}
-
-{
-  "physics": {
-    "type": "rigidCylinder",
     "mass": 0
   }
 }
