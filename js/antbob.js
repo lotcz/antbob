@@ -35,7 +35,7 @@ import AnimationHelper from './animation.js';
 import SoundHelper from './sound.js';
 
 const DUMMY_BODY_SIZE = 0.25;
-const HEIGHT_DELTA = DUMMY_BODY_SIZE * 1.5;
+const HEIGHT_DELTA = DUMMY_BODY_SIZE * 2.7;
 const BOB_WEIGHT = 1;
 
 const ROTATION_SPEED = 0.004;
@@ -133,12 +133,22 @@ export default class AntBob {
 		this.model = model;
 		this.group.add(model);
 
+		// BOX
 		//var shape = new Ammo.btBoxShape(new Ammo.btVector3(DUMMY_BODY_SIZE / 2 , DUMMY_BODY_SIZE, DUMMY_BODY_SIZE / 2));
 		//this.dummy = new THREE.Mesh(new THREE.BoxGeometry(DUMMY_BODY_SIZE, DUMMY_BODY_SIZE * 2, DUMMY_BODY_SIZE), new THREE.MeshBasicMaterial({color:0xFFFFFF}));
-		var shape = new Ammo.btSphereShape(DUMMY_BODY_SIZE);
+
+		// SPHERE
+		//var shape = new Ammo.btSphereShape(DUMMY_BODY_SIZE);
+		//this.dummy = new THREE.Mesh(new THREE.IcosahedronGeometry(DUMMY_BODY_SIZE, 3), new THREE.MeshBasicMaterial({color:0xFFFFFF}));
+
+		// CAPSULE
+		var shape = new Ammo.btCapsuleShape(DUMMY_BODY_SIZE, DUMMY_BODY_SIZE * 2);
 		this.dummy = new THREE.Mesh(new THREE.IcosahedronGeometry(DUMMY_BODY_SIZE, 3), new THREE.MeshBasicMaterial({color:0xFFFFFF}));
+		this.dummy.scale.y = this.dummy.scale.y * 2;
+
 		this.dummy.position.copy(this.group.position);
 		this.dummy.userData.antbob = true;
+		//this.player.scene.add(this.dummy);
 
 		this.body = this.physics.createRigidBody(
 			this.dummy,
@@ -149,8 +159,6 @@ export default class AntBob {
 			}
 		);
 		this.physics.addUserPointer(this.body, this.dummy);
-
-		//this.player.scene.add(this.dummy);
 
 		this.changeState(STATE_STANDING);
 
@@ -190,10 +198,15 @@ export default class AntBob {
 		// MODEL MOVEMENT
 		this.group.position.x = this.dummy.position.x;
 		this.group.position.z = this.dummy.position.z;
-		this.group.position.y = this.dummy.position.y - DUMMY_BODY_SIZE;
+		this.group.position.y = this.dummy.position.y - (DUMMY_BODY_SIZE * 2.2);
 
 		// MODEL ORIENTATION
 		this.group.lookAt(this.group.position.clone().add(this.direction));
+
+		// STAND UP
+		var vector = new THREE.Vector3(this.dummy.quaternion.x, this.dummy.quaternion.y, this.dummy.quaternion.z);
+		vector.multiplyScalar(-40);
+		this.body.setAngularVelocity(new Ammo.btVector3(vector.x, vector.y, vector.z));
 
 		// MODEL ANIMATION
 		this.animation.update(event);

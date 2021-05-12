@@ -68,7 +68,7 @@ export default class StateWalkingBackwards extends BobState {
 		var velocity = ZERO_VECTOR.clone();
 		velocity.sub(this.antbob.direction).multiplyScalar(this.antbob.speed);
 		this.antbob.body.setLinearVelocity(new Ammo.btVector3(velocity.x, velocity.y, velocity.z));
-		this.antbob.body.setAngularVelocity(new Ammo.btVector3(0, 0, 0));
+		//this.antbob.body.setAngularVelocity(new Ammo.btVector3(0, 0, 0));
 	}
 
 }

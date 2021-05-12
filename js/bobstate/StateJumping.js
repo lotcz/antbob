@@ -41,7 +41,7 @@ export default class StateJumping extends BobState {
 
 		this.time = JUMP_TIME;
 		this.energy = JUMP_ENERGY;
-		this.antbob.body.setAngularVelocity(new Ammo.btVector3(0, 0, 0));
+		//this.antbob.body.setAngularVelocity(new Ammo.btVector3(0, 0, 0));
 		this.antbob.body.setFriction(FRICTION_MOVEMENT);
 		this.antbob.body.setRollingFriction(0);
 	}
