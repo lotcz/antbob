@@ -48,7 +48,13 @@ export default class InteractionHelper {
 			} else if (this.target.data.interact.type == 'vehicle') {
 				this.antbob.setVehicle();
 			}
+
+			if (this.target.data.interact && this.target.data.interact.type == 'toggle') {
+				this.ui.story.toggle(this.target.data.interact.accomplishment);
+			}
+
 			this.target = null;
+			this.controls.interact = false;
 			return;
 		}
 

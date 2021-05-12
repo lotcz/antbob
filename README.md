@@ -56,6 +56,30 @@ Soft body:
   }
 }
 ```
+
+### Story and Interaction
+
+```
+{
+  "story": {
+    "type": "visible",
+    "when": "switch-light"
+  }
+}
+```
+
+```
+{
+  "interaction": {
+    "name": "Blue Light",
+    "interact": {
+      "type": "toggle",
+      "accomplishment": "switch-light"
+    }
+  }
+}
+```
+
 ### Editor scripts
 
 ```

@@ -6,7 +6,6 @@ import SoundHelper from './sound.js';
 import InteractionHelper from './interaction.js';
 import Controls from './controls.js';
 import AntBob from './antbob.js';
-import MyExperiment from './experiment.js';
 
 export default class Player {
 
@@ -132,10 +131,6 @@ export default class Player {
 		// SOUND
 		//this.sound = new SoundHelper('sound/forest_1.mp3');
 		//this.sound.play();
-
-		// EXPERIMENT
-		//var experiment = new MyExperiment(this);
-		//this.events.update.push((e) => experiment.updatePhysics(e));
 
 		this.onResize = () => this.setSize(this.dom.offsetWidth, this.dom.offsetHeight);
 		this.onResize();

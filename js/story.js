@@ -1,10 +1,19 @@
 export default class StoryHelper {
 
-	constructor() {
+	constructor(ui) {
+		this.ui = ui;
 		this.reset();
 	}
 
 	// new game
+	restart() {
+		this.reset();
+		this.save();
+		var level = this.getLevel();
+		this.setLevel(null);
+		this.ui.loadLevel(level);
+	}
+
 	reset() {
 		this.state = {
 			lastLevel: null,
@@ -26,11 +35,12 @@ export default class StoryHelper {
 
 	accomplish(name, value = true) {
 		this.state.accomplished[name] = value;
+		this.runTrigger(name);
 		this.save();
 	}
 
 	isAccomplished(name) {
-		return name in this.state.accomplished;
+		return (name in this.state.accomplished) && this.state.accomplished[name];
 	}
 
 	do(name) {
@@ -39,6 +49,10 @@ export default class StoryHelper {
 
 	undo(name) {
 		this.accomplish(name, false);
+	}
+
+	toggle(name) {
+		this.accomplish(name, !this.isAccomplished(name));
 	}
 
 	isDone(name) {
@@ -57,6 +71,53 @@ export default class StoryHelper {
 
 	getLastLevel() {
 		return this.state.lastLevel;
+	}
+
+	processUserData(userdata) {
+		this.triggers = [];
+		// create triggers
+		for (var i = 0; i < userdata.userData.story.length; i++) {
+			var udata = userdata.userData.story[i];
+			if (udata.data.type == 'visible') {
+				this.addTrigger(udata.data.when, true, () => this.makeVisible(udata.node));
+				this.addTrigger(udata.data.when, false, () => this.makeInvisible(udata.node));
+			}
+		}
+
+		// run triggers
+		for (var accomplishment in this.state.accomplished) {
+			this.runTrigger(accomplishment);
+		}
+	}
+
+	addTrigger(accomplishment, done, trigger) {
+		var triggerObject = this.triggers[accomplishment];
+		if (!triggerObject) {
+			triggerObject = {
+				on: [],
+				off: []
+			}
+			this.triggers[accomplishment] = triggerObject;
+		}
+		var triggers = (done) ? triggerObject.on : triggerObject.off;
+		triggers.push(trigger);
+	}
+
+	runTrigger(accomplishment) {
+		var triggerObject = this.triggers[accomplishment];
+		if (!triggerObject) return;
+		var triggers = this.isAccomplished(accomplishment) ? triggerObject.on : triggerObject.off;
+		for (var i = 0, max = triggers.length; i < max; i++) {
+			triggers[i]();
+		}
+	}
+
+	makeVisible(node) {
+		node.visible = true;
+	}
+
+	makeInvisible(node) {
+		node.visible = false;
 	}
 
 }

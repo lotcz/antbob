@@ -6,6 +6,7 @@ export default class UserdataHelper {
 		this.userData = {
 			stairs: [],
 			physics: [],
+			story: [],
 			interaction: []
 		};
 		this.extractUserData(node);

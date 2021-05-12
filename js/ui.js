@@ -6,7 +6,8 @@ export default class UI {
 
 	constructor() {
 		this.controls = new Controls();
-		this.story = window['story'] = new StoryHelper();
+
+		this.story = window['story'] = new StoryHelper(this);
 		this.story.load();
 		console.log(this.story.state);
 
@@ -33,6 +34,7 @@ export default class UI {
 		this.player.loadFile(
 			'levels/' + this.story.getLevel() + '/app.json?v=' + Math.random(),
 			() =>  {
+				this.story.processUserData(this.player.userdata);
 				this.hideInteraction();
 				this.container.style.display = 'block';
 				this.player.play();
@@ -42,7 +44,6 @@ export default class UI {
 
 	loadLevel(name) {
 		this.story.setLevel(name);
-		console.log(this.story.state);
 		this.disposePlayer();
 		window.location = window.location;
 	}
