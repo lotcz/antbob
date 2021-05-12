@@ -315,8 +315,8 @@ export default class PhysicsHelper {
 		clothGeometry.translate( clothPos.x, clothPos.y + clothHeight * 0.5, clothPos.z - clothWidth * 0.5 );
 
 		var cloth = new THREE.Mesh(clothGeometry, material);
-		cloth.castShadow = true;
-		cloth.receiveShadow = true;
+		//cloth.castShadow = true;
+		//cloth.receiveShadow = true;
 		cloth.userData.physicsBody = clothSoftBody;
 		this.clothBodies.push(cloth);
 

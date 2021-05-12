@@ -129,10 +129,6 @@ export default class AntBob {
 	}
 
 	onAnimationLoaded(model) {
-		//console.log(model);
-		var leftHandBone = model.getObjectByName("mixamorigLeftHand");
-		leftHandBone.add(new THREE.Mesh(new THREE.IcosahedronGeometry(0.03, 3), new THREE.MeshBasicMaterial({color:0xFFFFFF})));
-
 		this.processMaterials(model);
 		this.model = model;
 		this.group.add(model);
@@ -253,14 +249,18 @@ export default class AntBob {
 
 	setGun(gundata) {
 		if (this.gun) {
-			this.group.remove(this.gun);
+			this.gun.parent.remove(this.gun);
 		}
 
 		if (gundata) {
 			var gunModel = gundata.node;
 			if (gunModel) {
 				this.gun = gunModel.clone();
-				this.group.add(this.gun);
+				console.log(this.model);
+				//var leftHandBone = model.getObjectByName("mixamorigLeftHand");
+				var spine = this.model.getObjectByName("mixamorigSpine");
+				spine.add(this.gun);
+				//this.group.add(this.gun);
 				this.gun.position.set(0, 0, 0);
 			}
 		} else {

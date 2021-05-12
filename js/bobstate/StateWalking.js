@@ -55,16 +55,12 @@ export default class StateWalking extends BobState {
 			return;
 		}
 
-		// animate backpack
-		if (this.antbob.gun) this.antbob.gun.position.y = 0.02 + Math.sin(event.time / 50) * 0.02;
-
 		if (this.antbob.speed < WALKING_SPEED) {
 			this.antbob.speed += (event.delta * WALKING_ACCELERATION);
 			this.antbob.speed = Math.min(WALKING_SPEED, this.antbob.speed);
 		}
 
 		if (this.antbob.speed > WALKING_SPEED) {
-			//this.antbob.speed -= (event.delta * WALKING_ACCELERATION);
 			this.antbob.speed = WALKING_SPEED;
 		}
 
