@@ -32,6 +32,11 @@ export default class StateRunningBackwards extends BobState {
 			return;
 		}
 
+		if (this.antbob.jumpTimeout <= 0 && this.antbob.controls.jump) {
+			this.changeState(STATE_JUMPING);
+			return;
+		}
+
 		if (!this.antbob.controls.anyMovement()) {
 			this.antbob.changeState(STATE_STANDING);
 			return;

@@ -2,6 +2,7 @@ import PhysicsHelper from './physics.js';
 import StairsHelper from './stairs.js';
 import UserdataHelper from './userdata.js';
 import AnimationHelper from './animation.js';
+import RootsHelper from './roots.js';
 import SoundHelper from './sound.js';
 import InteractionHelper from './interaction.js';
 import Controls from './controls.js';
@@ -116,6 +117,9 @@ export default class Player {
 
 		// STAIRS
 		var stairs = new StairsHelper(this);
+
+		// ROOTS
+		var roots = new RootsHelper(this);
 
 		// PHYSICS
 		this.physics = new PhysicsHelper(this);

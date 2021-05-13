@@ -5,6 +5,7 @@ export default class UserdataHelper {
 		// 'type' => { data, node }
 		this.userData = {
 			stairs: [],
+			roots: [],
 			physics: [],
 			story: [],
 			interaction: []
