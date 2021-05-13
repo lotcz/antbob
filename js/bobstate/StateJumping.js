@@ -20,7 +20,6 @@ import {
 const JUMP_TIMEOUT = 300;
 const JUMP_TIME = 600;
 const JUMP_ENERGY = 350;
-const JUMP_SPEED = 5;
 
 export default class StateJumping extends BobState {
 
@@ -37,11 +36,11 @@ export default class StateJumping extends BobState {
 		this.movementDirection.multiplyScalar(Math.max(RUNNING_SPEED / 2, this.antbob.speed));
 
 		this.jumpingDirection = Y_AXIS.clone();
-		this.jumpingDirection.multiplyScalar(JUMP_SPEED);
+		this.jumpingDirection.multiplyScalar(Math.max(RUNNING_SPEED / 2, this.antbob.speed));
 
 		this.time = JUMP_TIME;
 		this.energy = JUMP_ENERGY;
-		this.antbob.body.setAngularVelocity(new Ammo.btVector3(0, 0, 0));
+
 		this.antbob.body.setFriction(FRICTION_MOVEMENT);
 		this.antbob.body.setRollingFriction(0);
 	}

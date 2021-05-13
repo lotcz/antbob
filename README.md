@@ -39,6 +39,13 @@ Put this on camera:
     "mass": 0
   }
 }
+
+{
+  "physics": {
+    "type": "rigidCylinder",
+    "mass": 0
+  }
+}
 ```
 
 Soft body:

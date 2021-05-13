@@ -34,6 +34,11 @@ export default class StateWalkingBackwards extends BobState {
 			return;
 		}
 
+		if (this.antbob.jumpTimeout <= 0 && this.antbob.controls.jump) {
+			this.changeState(STATE_JUMPING);
+			return;
+		}
+
 		if (!this.antbob.controls.anyMovement()) {
 			this.antbob.changeState(STATE_STANDING);
 			return;
@@ -68,7 +73,7 @@ export default class StateWalkingBackwards extends BobState {
 		var velocity = ZERO_VECTOR.clone();
 		velocity.sub(this.antbob.direction).multiplyScalar(this.antbob.speed);
 		this.antbob.body.setLinearVelocity(new Ammo.btVector3(velocity.x, velocity.y, velocity.z));
-		this.antbob.body.setAngularVelocity(new Ammo.btVector3(0, 0, 0));
+		//this.antbob.body.setAngularVelocity(new Ammo.btVector3(0, 0, 0));
 	}
 
 }
