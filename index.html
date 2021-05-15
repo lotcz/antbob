@@ -1,8 +1,7 @@
-<?php
-	$level = (isset($_GET['level'])) ? $_GET['level'] : 'level0';
-?><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 	<head>
-		<title>Ant Bob - <?=$level ?></title>
+		<title>Ant Bob</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link type="text/css" rel="stylesheet" href="main.css">
@@ -58,15 +57,11 @@
 			</div>
 		</div>
 		<script type="module">
-
-			import * as THREE from './node_modules/three/build/three.module.js';
-			window.THREE = THREE; // Used by APP Scripts.
-
 			import UI from './js/ui.js';
 
 			Ammo().then(function (AmmoLib) {
 				window.Ammo = Ammo = AmmoLib;
-				var ui = new UI('<?=$level ?>');
+				var ui = new UI();
 			});
 
 		</script>

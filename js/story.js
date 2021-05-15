@@ -18,7 +18,11 @@ export default class StoryHelper {
 		this.state = {
 			lastLevel: null,
 			level: 'level0',
-			accomplished: {}
+			accomplished: {},
+			inventory: {
+				hand: null,
+				backpack: null
+			}
 		}
 	}
 
@@ -122,6 +126,23 @@ export default class StoryHelper {
 
 	makeInvisible(node) {
 		node.visible = false;
+	}
+
+	 /* inventory */
+	hasInventoryItem(slot) {
+		return this.state.inventory[slot] != null;
+	}
+
+	addInventoryItem(slot, data) {
+		if (!this.hasInventoryItem(slot)) this.state.inventory[slot] = data;
+	}
+
+	removeInventoryItem(slot) {
+		if (this.hasInventoryItem(slot)) {
+			const data = this.state.inventory[slot];
+			this.state.inventory[slot] = null;
+			return data;
+		}
 	}
 
 }

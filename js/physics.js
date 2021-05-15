@@ -112,11 +112,15 @@ export default class PhysicsHelper {
 		body.setUserPointer( btVecUserData );
 	}
 
+	getWorldVisibility(threeObject) {
+		if (threeObject == null) return true;
+		if (!threeObject.visible) return false;
+		return this.getWorldVisibility(threeObject.parent);
+	}
+
 	moveToScene(threeObject) {
 		if (threeObject.parent && threeObject.parent !== this.scene) {
-			threeObject.visible = threeObject.visible && threeObject.parent.visible;
-			//threeObject.parent.updateWorldMatrix();
-			//threeObject.updateWorldMatrix();
+			threeObject.visible = this.getWorldVisibility(threeObject);
 			var pos = new THREE.Vector3();
 			threeObject.getWorldPosition(pos);
 			var quat = new THREE.Quaternion();
@@ -124,7 +128,6 @@ export default class PhysicsHelper {
 			threeObject.parent.remove(threeObject);
 			threeObject.position.copy(pos);
 			threeObject.quaternion.copy(quat);
-			//threeObject.updateWorldMatrix();
 			this.scene.add(threeObject);
 		}
 	}

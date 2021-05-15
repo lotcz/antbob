@@ -1,3 +1,6 @@
+import * as THREE from '../node_modules/three/build/three.module.js';
+window.THREE = THREE; // Used by APP Scripts.
+
 import Player from './player.js';
 import Controls from './controls.js';
 import StoryHelper from './story.js';
@@ -7,6 +10,7 @@ export default class UI {
 	constructor() {
 		this.controls = new Controls();
 
+		// add to window for simple usage in dev console
 		this.story = window['story'] = new StoryHelper(this);
 		this.story.load();
 		console.log(this.story.state);

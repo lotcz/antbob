@@ -1,5 +1,3 @@
-import * as THREE from '../node_modules/three/build/three.module.js';
-
 import {
 	BobState,
 	STATE_STANDING,
@@ -34,8 +32,9 @@ import Vehicle from './vehicle.js';
 import AnimationHelper from './animation.js';
 import SoundHelper from './sound.js';
 
-const DUMMY_BODY_SIZE = 0.25;
-const HEIGHT_DELTA = DUMMY_BODY_SIZE * 2.7;
+const DUMMY_BODY_SIZE = 0.15;
+const DUMMY_BODY_HEIGHT = 2.3 * DUMMY_BODY_SIZE;
+const HEIGHT_DELTA = DUMMY_BODY_HEIGHT * 1.5;
 const BOB_WEIGHT = 1;
 
 const ROTATION_SPEED = 0.004;
@@ -142,9 +141,14 @@ export default class AntBob {
 		//this.dummy = new THREE.Mesh(new THREE.IcosahedronGeometry(DUMMY_BODY_SIZE, 3), new THREE.MeshBasicMaterial({color:0xFFFFFF}));
 
 		// CAPSULE
-		var shape = new Ammo.btCapsuleShape(DUMMY_BODY_SIZE, DUMMY_BODY_SIZE * 2);
-		this.dummy = new THREE.Mesh(new THREE.IcosahedronGeometry(DUMMY_BODY_SIZE, 3), new THREE.MeshBasicMaterial({color:0xFFFFFF}));
-		this.dummy.scale.y = this.dummy.scale.y * 2;
+		var shape = new Ammo.btCapsuleShape(DUMMY_BODY_SIZE, DUMMY_BODY_HEIGHT);
+		var dummy1 = new THREE.Mesh(new THREE.IcosahedronGeometry(DUMMY_BODY_SIZE, 3), new THREE.MeshBasicMaterial({color:0xFFFFFF}));
+		dummy1.position.y = - (DUMMY_BODY_HEIGHT / 2) - (DUMMY_BODY_SIZE / 2);
+		var dummy2 = dummy1.clone();
+		dummy2.position.y = (DUMMY_BODY_HEIGHT / 2) + (DUMMY_BODY_SIZE / 2);
+		this.dummy = new THREE.Group();
+		this.dummy.add(dummy1);
+		this.dummy.add(dummy2);
 
 		this.dummy.position.copy(this.group.position);
 		this.dummy.userData.antbob = true;
@@ -155,7 +159,9 @@ export default class AntBob {
 			shape,
 			{
 				mass: BOB_WEIGHT,
-				restitution: 0.5
+				restitution: 0.5,
+				angularDamping: 0.1,
+				rollingFriction: 100
 			}
 		);
 		this.physics.addUserPointer(this.body, this.dummy);
@@ -186,7 +192,7 @@ export default class AntBob {
 		if (this.controls.moveRight) this.direction.applyAxisAngle(Y_AXIS, - ROTATION_SPEED * deltaTime);
 
 		// DETECT WHETHER ON GROUND
-		var raycaster = new THREE.Raycaster(this.dummy.position, Y_AXIS_INVERTED, 0.01, 10);
+		var raycaster = new THREE.Raycaster(this.dummy.position, Y_AXIS_INVERTED, 0, HEIGHT_DELTA);
 		var intersections = raycaster.intersectObjects(this.physics.allBodies, false);
 		//this.player.scene.add(new THREE.ArrowHelper(raycaster.ray.direction, raycaster.ray.origin, 300, 0xff0000) );
 		if (intersections.length > 0) {
@@ -198,15 +204,21 @@ export default class AntBob {
 		// MODEL MOVEMENT
 		this.group.position.x = this.dummy.position.x;
 		this.group.position.z = this.dummy.position.z;
-		this.group.position.y = this.dummy.position.y - (DUMMY_BODY_SIZE * 2.2);
+		this.group.position.y = this.dummy.position.y - DUMMY_BODY_HEIGHT - 0.04;
 
 		// MODEL ORIENTATION
 		this.group.lookAt(this.group.position.clone().add(this.direction));
+		//this.model.quaternion.set(this.dummy.quaternion.x, 0, this.dummy.quaternion.z, this.dummy.quaternion.w);
+
 
 		// STAND UP
 		var vector = new THREE.Vector3(this.dummy.quaternion.x, this.dummy.quaternion.y, this.dummy.quaternion.z);
-		vector.multiplyScalar(-40);
-		this.body.setAngularVelocity(new Ammo.btVector3(vector.x, vector.y, vector.z));
+		if (vector.length() > 0.001) {
+			vector.multiplyScalar(-1);
+			this.body.setAngularVelocity(new Ammo.btVector3(0, 0, 0));
+			this.body.applyTorqueImpulse(new Ammo.btVector3(vector.x, vector.y, vector.z));
+			//if (this.onGround) this.body.applyCentralImpulse(new Ammo.btVector3(0, 0.1, 0));
+		}
 
 		// MODEL ANIMATION
 		this.animation.update(event);
@@ -260,25 +272,26 @@ export default class AntBob {
 		this.state.update(event);
 	}
 
-	setGun(gundata) {
+	dropItem(slot) {
 		if (this.gun) {
 			this.gun.parent.remove(this.gun);
 		}
+		this.gun = null;
+	}
 
-		if (gundata) {
-			var gunModel = gundata.node;
-			if (gunModel) {
-				this.gun = gunModel.clone();
-				console.log(this.model);
-				//var leftHandBone = model.getObjectByName("mixamorigLeftHand");
-				var spine = this.model.getObjectByName("mixamorigSpine");
-				spine.add(this.gun);
-				//this.group.add(this.gun);
-				this.gun.position.set(0, 0, 0);
-			}
-		} else {
-			this.gun = null;
-		}
+	takeItem(node, data) {
+		const slot = data.slot;
+		this.player.ui.story.addInventoryItem(slot, data);
+
+		node.parent.remove(node);
+		node = node.clone();
+
+		const boneName = slot == 'backpack' ? 'mixamorigSpine' : 'mixamorigLeftHand';
+		const bone = this.model.getObjectByName(boneName);
+		bone.add(node);
+		console.log(bone, slot);
+		node.position.set(0, 0, 0);
+
 	}
 
 	setVehicle() {

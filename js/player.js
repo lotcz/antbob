@@ -1,11 +1,9 @@
 import PhysicsHelper from './physics.js';
 import StairsHelper from './stairs.js';
 import UserdataHelper from './userdata.js';
-import AnimationHelper from './animation.js';
 import RootsHelper from './roots.js';
 import SoundHelper from './sound.js';
 import InteractionHelper from './interaction.js';
-import Controls from './controls.js';
 import AntBob from './antbob.js';
 
 export default class Player {

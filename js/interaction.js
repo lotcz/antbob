@@ -1,3 +1,5 @@
+const DEFAULT_INTERACTION_DISTANCE = 0.75;
+
 export default class InteractionHelper {
 
 	constructor(player, controls, antbob, ui) {
@@ -8,8 +10,6 @@ export default class InteractionHelper {
 		this.ui = ui;
 
 		this.target = null;
-		this.maxDistance = 1.5;
-
 		this.timeout = 0;
 	}
 
@@ -19,11 +19,13 @@ export default class InteractionHelper {
 		var min, mi;
 		for (var i = 0; i < this.userdata.userData.interaction.length; i++) {
 			var udata = this.userdata.userData.interaction[i];
-			var distance = this.antbob.dummy.position.distanceToSquared(udata.node.localToWorld(new THREE.Vector3(0, 0, 0)));
-			var maxDistance = udata.data.maxDistance ? udata.data.maxDistance : this.maxDistance;
-			if ((min === undefined || distance < min) && (distance < maxDistance)) {
-				min = distance;
-				mi = i;
+			if (udata.node.visible) {
+				var distance = this.antbob.dummy.position.distanceToSquared(udata.node.localToWorld(new THREE.Vector3(0, 0, 0)));
+				var maxDistance = udata.data.maxDistance ? udata.data.maxDistance : DEFAULT_INTERACTION_DISTANCE;
+				if ((min === undefined || distance < min) && (distance < maxDistance)) {
+					min = distance;
+					mi = i;
+				}
 			}
 		}
 		if (mi !== undefined) return this.userdata.userData.interaction[mi];
@@ -40,7 +42,7 @@ export default class InteractionHelper {
 			if ((this.target.data.interact.type == 'talk')) {
 				this.ui.showTalkDialog(this.target.data);
 			} else if (this.target.data.interact.type == 'item') {
-				this.antbob.setGun(this.target);
+				this.antbob.takeItem(this.target.node, this.target.data.interact);
 				this.ui.showActiveItem(this.target.data.name, this.target.data.interact.text);
 				this.target.node.visible = false;
 				this.target.data.interact = undefined;
