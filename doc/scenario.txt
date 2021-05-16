@@ -6,8 +6,15 @@ CONTROLS
 - interact/take/talk
 - throw/fire
 
+Inventory Slots
+
+ - left hand
+ - right hand
+ - backpack
+ - head
+
 can have ammo (stones, ...) and throw it
-can hold an item and throw it, runs slower
+can hold an item in both hands and throw it, runs slower
 can have a backpack to hold special ammo, then "shoot" it
 
 STORY

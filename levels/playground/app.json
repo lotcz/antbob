@@ -17,17 +17,17 @@
 			"generator": "Object3D.toJSON"
 		},
 		"object": {
-			"uuid": "3253288B-6C2D-4BFD-978F-04DD48E48904",
+			"uuid": "E993C059-EFF3-495A-91C4-916B596D0C9C",
 			"type": "PerspectiveCamera",
 			"name": "Camera",
 			"layers": 1,
-			"matrix": [0.723804,0,-0.690007,0,-0.212001,0.951632,-0.222385,0,0.65663,0.307244,0.688792,0,18.75697,4.968438,7.887044,1],
+			"matrix": [0.708974,0,-0.705236,0,-0.277546,0.919304,-0.279017,0,0.648324,0.39355,0.65176,0,6.863006,4.166025,6.899379,1],
 			"fov": 50,
 			"zoom": 1,
 			"near": 0.01,
 			"far": 1000,
 			"focus": 10,
-			"aspect": 1.649695,
+			"aspect": 1.232927,
 			"filmGauge": 35,
 			"filmOffset": 0
 		}
@@ -6927,13 +6927,13 @@
 				{
 					"uuid": "C8EEAC60-989A-4F12-B8CF-58CE0DE04DDB",
 					"type": "Group",
-					"name": "Exit-level0",
+					"name": "Exit-home",
 					"userData": {
 						"interaction": {
 							"name": "Home",
 							"interact": {
 								"type": "exit",
-								"level": "level0"
+								"level": "home"
 							}
 						}
 					},
@@ -7045,7 +7045,7 @@
 											"name": "Backpack",
 											"interact": {
 												"type": "item",
-												"itemtype": "backpack",
+												"slot": "backpack",
 												"portrait": "BackPackGroup",
 												"text": "This special backpack serves as a gun that throws random objects."
 											}
@@ -7977,13 +7977,13 @@
 				{
 					"uuid": "3BA9C362-EA68-4397-8BC5-5250B2FC689E",
 					"type": "Group",
-					"name": "Exit-level1",
+					"name": "Exit-pond",
 					"userData": {
 						"interaction": {
-							"name": "Level 1",
+							"name": "Pond",
 							"interact": {
 								"type": "exit",
-								"level": "level1"
+								"level": "pond"
 							}
 						}
 					},
@@ -8376,7 +8376,7 @@
 																"name": "mixamorig:LeftFoot"
 															},
 															"layers": 1,
-															"matrix": [-0.01454,-0.13168,0.991186,0,-0.954227,0.297983,0.025589,0,-0.298725,-0.945444,-0.129986,0,0,0.157458,0,1],
+															"matrix": [-0.01454,-0.13168,0.991186,0,-0.954227,0.297983,0.025589,0,-0.298725,-0.945444,-0.129985,0,0,0.157458,0,1],
 															"children": [
 																{
 																	"uuid": "28BD8B7A-D826-4698-83E3-BF43D8850B37",

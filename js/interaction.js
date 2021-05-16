@@ -35,18 +35,21 @@ export default class InteractionHelper {
 		var deltaTime = event.delta;
 
 		if (this.controls.interact && this.target !== null && this.target.data.interact) {
+			this.ui.hideInteraction();
+
 			if (this.target.data.interact.type == 'exit') {
 				this.ui.loadLevel(this.target.data.interact.level);
 				return;
 			}
+
 			if ((this.target.data.interact.type == 'talk')) {
 				this.ui.showTalkDialog(this.target.data);
 			} else if (this.target.data.interact.type == 'item') {
-				this.antbob.takeItem(this.target.node, this.target.data.interact);
-				this.ui.showActiveItem(this.target.data.name, this.target.data.interact.text);
-				this.target.node.visible = false;
-				this.target.data.interact = undefined;
-				this.userdata.removeUserData('interaction', this.target);
+				if (this.antbob.takeItem(this.target.data.interact)) {
+					let node = this.target.node;
+					node.parent.remove(node);
+					this.userdata.removeUserData('interaction', this.target);
+				}
 			} else if (this.target.data.interact.type == 'vehicle') {
 				this.antbob.setVehicle();
 			}

@@ -8,30 +8,47 @@ import StoryHelper from './story.js';
 export default class UI {
 
 	constructor() {
+		this.dom = document.getElementById('ui');
+		this.container = document.getElementById('container');
+
+		this.inventorySlots = [];
+		this.inventory = this.addElement(this.dom, 'inventory fixed hidden');
+		const headContainer = this.addElement(this.inventory, 'row');
+		this.inventorySlots['head'] = this.addElement(headContainer, 'inventory-slot dialog hidden');
+		const handsContainer = this.addElement(this.inventory, 'row');
+		this.inventorySlots['leftHand'] = this.addElement(handsContainer, 'inventory-slot dialog hidden');
+		this.inventorySlots['rightHand'] = this.addElement(handsContainer, 'inventory-slot dialog hidden');
+		const backpackContainer = this.addElement(this.inventory, 'row');
+		this.inventorySlots['backpack'] = this.addElement(backpackContainer, 'inventory-slot dialog hidden');
+
+		this.speedometer = this.addElement(this.dom, 'dialog fixed hidden');
+
+		this.interactionDialog = this.addElement(this.dom, 'interaction-dialog dialog hidden');
+		this.interactionName = this.addElement(this.interactionDialog,'interaction-name');
+		this.interactHint = this.addElement(this.interactionDialog,'interact-hint hint hidden');
+		this.interactHint.innerHTML = 'press <strong>E</strong> to interact';
+		this.itemHint = this.addElement(this.interactionDialog,'interact-hint hint hidden');
+		this.itemHint.innerHTML = 'press <strong>E</strong> to pick up';
+		this.exitHint = this.addElement(this.interactionDialog,'interact-hint hint hidden');
+		this.exitHint.innerHTML = 'press <strong>E</strong> to enter';
+		this.talkHint = this.addElement(this.interactionDialog,'interact-hint hint hidden');
+		this.talkHint.innerHTML = 'press <strong>E</strong> to talk';
+
+		this.talkDialog = this.addElement(this.dom, 'talk-dialog dialog talk hidden');
+		const talkHeaderContainer = this.addElement(this.talkDialog, 'talk-header');
+		this.talkPortrait = this.addElement(talkHeaderContainer, 'talk-portrait');
+		this.talkName = this.addElement(talkHeaderContainer, 'talk-name');
+		this.talkText = this.addElement(this.talkDialog,'talk-text');
+		this.continueHint = this.addElement(this.talkDialog,'continue-hint hint');
+		this.continueHint.innerHTML = 'press any key to continue';
+
 		this.controls = new Controls();
 
 		// add to window for simple usage in dev console
-		this.story = window['story'] = new StoryHelper(this);
+		this.story = window.story = new StoryHelper(this);
 		this.story.load();
-		console.log(this.story.state);
+		//console.log(this.story.state);
 
-		this.dom = document.getElementById('ui');
-		this.container = document.getElementById('container');
-		this.interactionDialog = document.getElementById('interaction_dialog');
-		this.interactionName = document.getElementById('interaction_name');
-		this.interactHint = document.getElementById('interact_hint');
-		this.itemHint = document.getElementById('item_hint');
-		this.exitHint = document.getElementById('exit_hint');
-		this.talkHint = document.getElementById('talk_hint');
-		this.talkDialog = document.getElementById('talk_dialog');
-		this.talkPortrait = document.getElementById('talk_portrait');
-		this.talkName = document.getElementById('talk_name');
-		this.talkText = document.getElementById('talk_text');
-		this.continueHint = document.getElementById('continue_hint');
-		this.inventory = document.getElementById('inventory');
-		this.inventoryActiveItemName = document.getElementById('active_item_name');
-		this.inventoryActiveItemText = document.getElementById('active_item_text');
-		this.inventoryActiveItemPortrait = document.getElementById('active_item_portrait');
 		this.player = new Player(this);
 
 		this.showInteraction({ name: 'Loading...'});
@@ -40,7 +57,7 @@ export default class UI {
 			() =>  {
 				this.story.processUserData(this.player.userdata);
 				this.hideInteraction();
-				this.container.style.display = 'block';
+				this.showInventory();
 				this.player.play();
 			}
 		);
@@ -86,6 +103,7 @@ export default class UI {
 		this.controls.disableMovement();
 		if (this.player && this.player.playing) this.player.stop();
 		this.hideInteraction();
+		this.hideInventory();
 
 		this.talkName.innerHTML = data.name;
 		this.talkText.innerHTML = data.interact.text;
@@ -136,12 +154,39 @@ export default class UI {
 		if (this.player && !this.player.playing) this.player.play();
 		this.controls.enableMovement();
 		this.hideElement(this.talkDialog);
+		this.showInventory();
 	}
 
-	showActiveItem(name, text) {
-		this.inventoryActiveItemName.innerHTML = name;
-		this.inventoryActiveItemText.innerHTML = text;
+	showInventory() {
 		this.showElement(this.inventory);
+	}
+
+	hideInventory() {
+		this.hideElement(this.inventory);
+	}
+
+	showInventoryItem(slot, data) {
+		const element = this.inventorySlots[slot];
+		const portrait = 'portraits/' + data.portrait + '.png';
+		element.innerHTML = '<img src="' + portrait + '" />';
+		this.showElement(element);
+	}
+
+	hideInventoryItem(slot) {
+		const element = this.inventorySlots[slot];
+		this.hideElement(element);
+	}
+
+	createElement(tag, cls) {
+		const element = document.createElement(tag);
+		element.className = cls;
+		return element;
+	}
+
+	addElement(parent, cls) {
+		const element = this.createElement('div', cls);
+		parent.appendChild(element);
+		return element;
 	}
 
 	showElement(element) {

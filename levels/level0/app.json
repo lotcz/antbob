@@ -21,13 +21,13 @@
 			"type": "PerspectiveCamera",
 			"name": "Camera",
 			"layers": 1,
-			"matrix": [-0.500278,0,0.865865,0,0.19685,0.973814,0.113736,0,-0.843191,0.227345,-0.487178,0,4.822316,2.962947,-9.871419,1],
+			"matrix": [-0.332469,0,0.943114,0,0.076116,0.996738,0.026833,0,-0.940038,0.080707,-0.331384,0,1.325118,2.056142,-9.981968,1],
 			"fov": 50,
 			"zoom": 1,
 			"near": 0.01,
 			"far": 1000,
 			"focus": 10,
-			"aspect": 1.528513,
+			"aspect": 1.653084,
 			"filmGauge": 35,
 			"filmOffset": 0
 		}
@@ -2092,6 +2092,8 @@
 									"uuid": "269B9654-A826-4512-8F38-EB416D9CC565",
 									"type": "Group",
 									"name": "WallRoots",
+									"castShadow": true,
+									"receiveShadow": true,
 									"layers": 1,
 									"matrix": [0.590132,-0.099935,1.164262,0,0.659431,1.105259,-0.239377,0,-0.964699,0.69438,0.548581,0,2.183696,0.883213,0.851006,1],
 									"children": [
@@ -2882,6 +2884,7 @@
 							"uuid": "EADF4267-D2B3-419E-9FA1-9C56AAF4229D",
 							"type": "Group",
 							"name": "FirebugYoungTakeable",
+							"visible": false,
 							"userData": {
 								"story": {
 									"type": "visible",
@@ -2893,8 +2896,8 @@
 									"interact": {
 										"type": "item",
 										"slot": "hand",
-										"portrait": "FirebugYoungTakeable",
-										"text": "Young firebugs are cute. They are fed to the meal bug."
+										"portrait": "firebug-young",
+										"model": "firebug-young"
 									}
 								}
 							},
@@ -2914,6 +2917,8 @@
 									"uuid": "0E11DA94-1B53-4F74-8488-A0821C7F1F78",
 									"type": "Mesh",
 									"name": "Wing",
+									"castShadow": true,
+									"receiveShadow": true,
 									"layers": 1,
 									"matrix": [1.521095,0.012928,0.091756,0,0.059266,-0.294607,-0.940987,0,0.009876,0.954452,-0.2982,0,0,0.899237,-0.196662,1],
 									"geometry": "DB6EB2B2-F3C1-43D8-B8A5-E9F65A882A03",
@@ -2923,6 +2928,8 @@
 									"uuid": "99BEDEFC-4DD8-47C0-9601-DCB78035ACB7",
 									"type": "Mesh",
 									"name": "Wing",
+									"castShadow": true,
+									"receiveShadow": true,
 									"layers": 1,
 									"matrix": [-1.501546,-0.125439,0.227904,0,0.15568,-0.100745,0.970246,0,-0.065598,0.991374,0.113464,0,0,0.899237,0.156556,1],
 									"geometry": "DB6EB2B2-F3C1-43D8-B8A5-E9F65A882A03",
@@ -3112,6 +3119,7 @@
 									"uuid": "CBB624CD-FA3D-4319-AAEF-2861547DE3D2",
 									"type": "Mesh",
 									"name": "Box",
+									"castShadow": true,
 									"layers": 1,
 									"matrix": [0.966431,0,0,0,0,0.590219,0,0,0,0,0.590219,0,0.896488,0.475646,0,1],
 									"geometry": "7A26C4C7-DDDF-4351-9788-F8DA0CC37E0D",
@@ -3125,12 +3133,39 @@
 									"matrix": [0.267253,0,0,0,0,0.241446,0,0,0,0,0.516009,0,1.641391,0.67997,0,1],
 									"geometry": "7A26C4C7-DDDF-4351-9788-F8DA0CC37E0D",
 									"material": "106AB553-BA41-480B-AC72-CB4E89409601"
+								},
+								{
+									"uuid": "9821D4E9-38CA-4619-B113-2008C1B76BF0",
+									"type": "PointLight",
+									"name": "PointLight",
+									"layers": 1,
+									"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,1.905664,1.096304,-0.272385,1],
+									"color": 6287426,
+									"intensity": 3.04,
+									"distance": 0.62,
+									"decay": 0.76,
+									"shadow": {
+										"camera": {
+											"uuid": "D442C092-EDE9-4C95-A92A-4872DD62DD88",
+											"type": "PerspectiveCamera",
+											"layers": 1,
+											"fov": 90,
+											"zoom": 1,
+											"near": 0.5,
+											"far": 500,
+											"focus": 10,
+											"aspect": 1,
+											"filmGauge": 35,
+											"filmOffset": 0
+										}
+									}
 								}]
 						},
 						{
 							"uuid": "79D4CE1A-E8CE-43DC-97EB-CA6A2221D627",
 							"type": "Group",
 							"name": "FirebugYoung",
+							"visible": false,
 							"userData": {
 								"story": {
 									"type": "visible",
@@ -3138,7 +3173,7 @@
 								}
 							},
 							"layers": 1,
-							"matrix": [-0.00258,0.039901,-0.000979,0,-0.037306,-0.002759,-0.014157,0,-0.014191,0,0.037395,0,3.320055,0.703036,4.180071,1],
+							"matrix": [0.000031,0.039494,-0.006318,0,0.00045,0.006318,0.039492,0,0.039994,-0.000102,-0.00044,0,2.137929,0.885239,0.98331,1],
 							"children": [
 								{
 									"uuid": "8DB509FD-FD13-4F30-B41E-45D7B535183D",
@@ -3370,6 +3405,7 @@
 							"uuid": "AD8240CB-CDE9-448F-B04B-0B9C34E3A189",
 							"type": "Group",
 							"name": "FirebugYoung",
+							"visible": false,
 							"userData": {
 								"story": {
 									"type": "visible",
@@ -3377,7 +3413,7 @@
 								}
 							},
 							"layers": 1,
-							"matrix": [-0.002418,0.037404,-0.000918,0,-0.034971,-0.002587,-0.013271,0,-0.013302,0,0.035054,0,3.52353,0.762841,3.178175,1],
+							"matrix": [-0.007837,0.036642,0.001296,0,-0.031617,-0.007424,0.018735,0,0.018567,0.002824,0.032451,0,3.480452,1.284838,2.714444,1],
 							"children": [
 								{
 									"uuid": "D70FDF05-6F7B-4E4E-8A97-D0EEEE250457",
@@ -3609,6 +3645,7 @@
 							"uuid": "1606AFF2-F203-4BD4-B058-6D7E926A78E3",
 							"type": "Group",
 							"name": "FirebugYoung",
+							"visible": false,
 							"userData": {
 								"story": {
 									"type": "visible",
@@ -3616,7 +3653,7 @@
 								}
 							},
 							"layers": 1,
-							"matrix": [-0.002125,0.032868,-0.000806,0,-0.03073,-0.002273,-0.011661,0,-0.011689,0,0.030803,0,3.52353,0.714931,3.392484,1],
+							"matrix": [-0.000264,0.032868,-0.002258,0,-0.003815,-0.002273,-0.032646,0,-0.032724,0,0.003824,0,1.604564,0.986147,6.18112,1],
 							"children": [
 								{
 									"uuid": "B9CAA3E2-2684-4364-96E0-8DCD7AC94D14",
@@ -4060,6 +4097,16 @@
 								"physics": {
 									"type": "rigidBox",
 									"mass": 0.05
+								},
+								"interaction": {
+									"name": "Rubik Cube",
+									"maxDistance": 0.5,
+									"interact": {
+										"type": "item",
+										"slot": "hand",
+										"portrait": "rubik",
+										"model": "rubik"
+									}
 								}
 							},
 							"layers": 1,

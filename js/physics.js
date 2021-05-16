@@ -56,30 +56,44 @@ export default class PhysicsHelper {
 		if (player.userdata) this.processUserData(player.userdata);
 	}
 
+	processUDataNode(udata) {
+		if (udata.data.type === 'rigidBox')
+			this.createRigidBodyFromBox(udata.node, udata.data);
+		if (udata.data.type === 'rigidSphere')
+			this.createRigidBodyFromSphere(udata.node, udata.data);
+		if (udata.data.type === 'rigidOctahedron')
+			this.createRigidBodyFromOctahedron(udata.node, udata.data);
+		if (udata.data.type === 'rigidCylinder')
+			this.createRigidBodyFromCylinder(udata.node, udata.data);
+		if (udata.data.type === 'cloth')
+			this.createCloth(udata.node, udata.data);
+		if (udata.data.type === 'softBody')
+			this.createSoftVolume(udata.node, udata.data);
+	}
+
 	processUserData(userdata) {
 		for (var i = 0; i < userdata.userData.physics.length; i++) {
-			var udata = userdata.userData.physics[i];
-			if (udata.data.type == 'rigidBox')
-				this.createRigidBodyFromBox(udata.node, udata.data);
-			if (udata.data.type == 'rigidSphere')
-				this.createRigidBodyFromSphere(udata.node, udata.data);
-			if (udata.data.type == 'rigidOctahedron')
-				this.createRigidBodyFromOctahedron(udata.node, udata.data);
-			if (udata.data.type == 'rigidCylinder')
-				this.createRigidBodyFromCylinder(udata.node, udata.data);
-			if (udata.data.type == 'cloth')
-				this.createCloth(udata.node, udata.data);
-			if (udata.data.type == 'softBody')
-				this.createSoftVolume(udata.node, udata.data);
+			this.processUDataNode(userdata.userData.physics[i]);
+		}
+	}
+
+	processMesh(mesh) {
+		if (!mesh) return;
+		if (mesh.userData && mesh.userData.physics)
+			this.processUDataNode({node: mesh, data: mesh.userData.physics});
+		else {
+			for (let i = 0, max = mesh.children.length; i < max; i++) {
+				this.processMesh(mesh.children[i]);
+			}
 		}
 	}
 
 	createRigidBodyFromBox(threeObject, data) {
 		var shape = new Ammo.btBoxShape(
 			new Ammo.btVector3(
-				threeObject.geometry.parameters.width * threeObject.scale.x * 0.5,
-				threeObject.geometry.parameters.height * threeObject.scale.y * 0.5,
-				threeObject.geometry.parameters.depth * threeObject.scale.z * 0.5
+				threeObject.geometry.parameters.width * 0.5,
+				threeObject.geometry.parameters.height * 0.5,
+				threeObject.geometry.parameters.depth * 0.5
 			)
 		);
 		var body = this.createRigidBody(threeObject, shape, data);
@@ -87,21 +101,21 @@ export default class PhysicsHelper {
 	}
 
 	createRigidBodyFromSphere(threeObject, data) {
-		var shape = new Ammo.btSphereShape(threeObject.geometry.parameters.radius * threeObject.scale.x);
+		var shape = new Ammo.btSphereShape(threeObject.geometry.parameters.radius);
 		return this.createRigidBody(threeObject, shape, data);
 	}
 
 	createRigidBodyFromCylinder(threeObject, data) {
-		let radiusTop = threeObject.geometry.parameters.radiusTop * threeObject.scale.x;
-		let radiusBottom = threeObject.geometry.parameters.radiusBottom * threeObject.scale.x;
-		let height = threeObject.geometry.parameters.height * threeObject.scale.y;
+		let radiusTop = threeObject.geometry.parameters.radiusTop;
+		let radiusBottom = threeObject.geometry.parameters.radiusBottom;
+		let height = threeObject.geometry.parameters.height;
 		var radius = (radiusTop + radiusBottom) / 2;
 		var shape = new Ammo.btCylinderShape(new Ammo.btVector3(radius, height * 0.5, radius));
 		return this.createRigidBody(threeObject, shape, data);
 	}
 
 	createRigidBodyFromOctahedron(threeObject, data) {
-		var shape = new Ammo.btSphereShape(threeObject.geometry.parameters.radius * threeObject.scale.x);
+		var shape = new Ammo.btSphereShape(threeObject.geometry.parameters.radius);
 		return this.createRigidBody(threeObject, shape, data);
 	}
 
@@ -125,9 +139,14 @@ export default class PhysicsHelper {
 			threeObject.getWorldPosition(pos);
 			var quat = new THREE.Quaternion();
 			threeObject.getWorldQuaternion(quat);
+			var scale = new THREE.Vector3();
+			threeObject.getWorldScale(scale);
+
 			threeObject.parent.remove(threeObject);
+
 			threeObject.position.copy(pos);
 			threeObject.quaternion.copy(quat);
+			threeObject.scale.copy(scale);
 			this.scene.add(threeObject);
 		}
 	}
@@ -150,6 +169,9 @@ export default class PhysicsHelper {
 
 		var rbInfo = new Ammo.btRigidBodyConstructionInfo(data.mass, motionState, physicsShape, localInertia);
 		var body = new Ammo.btRigidBody( rbInfo );
+
+		var collision = body.getCollisionShape();
+		collision.setLocalScaling(new Ammo.btVector3(threeObject.scale.x, threeObject.scale.y, threeObject.scale.z));
 
 		threeObject.userData.physicsBody = body;
 
