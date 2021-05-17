@@ -34,17 +34,29 @@ Put this on camera:
 
 ```
 {
-  "physics": {
-    "type": "rigidBox",
-    "mass": 0
-  }
+	"physics": {
+    	"type": "rigidBox",
+    	"mass": 0
+  	}
 }
 
 {
-  "physics": {
-    "type": "rigidCylinder",
-    "mass": 0
-  }
+	"physics": {
+    	"type": "rigidCylinder",
+    	"mass": 0
+  	}
+}
+```
+
+Reference:
+
+```
+{
+	"physics": {
+		"type": "rigidCylinder",
+		"ref": "Cylinder",
+		"mass": 0.3
+	}
 }
 ```
 

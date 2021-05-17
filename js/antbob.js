@@ -276,7 +276,6 @@ export default class AntBob {
 			pos.add(this.direction);
 			newMesh.position.copy(pos);
 			this.player.scene.add(newMesh);
-			console.log(item, mesh);
 
 			this.physics.processMesh(newMesh);
 			this.player.userdata.extractUserData(newMesh);
@@ -307,11 +306,22 @@ export default class AntBob {
 		const boneName = SLOT_BONES[slot];
 		const bone = this.model.getObjectByName(boneName);
 
+		//console.log(this.model);
 		const loader = new THREE.ObjectLoader();
 		loader.load(
 			'models/' + data.model + '.json?v=' + Math.random(),
 			function ( obj ) {
 				bone.add( obj );
+				if (slot === 'leftHand') {
+					const quaternion = new THREE.Quaternion();
+					quaternion.setFromAxisAngle(Y_AXIS, Math.PI * -0.5);
+					obj.applyQuaternion(quaternion);
+				}
+				if (slot === 'rightHand') {
+					const quaternion = new THREE.Quaternion();
+					quaternion.setFromAxisAngle(Y_AXIS, Math.PI * -0.5);
+					obj.applyQuaternion(quaternion);
+				}
 				bone.userData['itemMesh'] = obj;
 			},
 			// onProgress callback
