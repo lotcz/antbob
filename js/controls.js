@@ -41,7 +41,7 @@ export default class Controls {
 		this.caps = event.getModifierState("CapsLock");
 		var key = event.keyCode ? event.keyCode : event.charCode;
 		if (this.movementEnabled) {
-			switch (event.keyCode) {
+			switch (key) {
 				case 38: /*up*/
 				case 87: /*W*/ this.moveForward = true; break;
 				case 37: /*left*/

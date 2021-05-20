@@ -18,7 +18,13 @@ export default class StoryHelper {
 		this.state = {
 			lastLevel: null,
 			level: 'level0',
-			accomplished: {}
+			accomplished: {},
+			inventory: {
+				leftHand: null,
+				rightHand: null,
+				backpack: null,
+				head: null
+			}
 		}
 	}
 
@@ -26,6 +32,9 @@ export default class StoryHelper {
 		var item = localStorage.getItem('antbob');
 		if (item) {
 			this.state = JSON.parse(item);
+			for (let slot in this.state.inventory) {
+				this.updateUIInventorySlot(slot);
+			}
 		}
 	}
 
@@ -122,6 +131,42 @@ export default class StoryHelper {
 
 	makeInvisible(node) {
 		node.visible = false;
+	}
+
+	 /* inventory */
+	hasInventoryItem(slot) {
+		return (slot in this.state.inventory) && (this.state.inventory[slot] != null);
+	}
+
+	addInventoryItem(slot, data) {
+		if (slot == 'hand') slot = this.hasInventoryItem('leftHand') ? 'rightHand' : 'leftHand';
+
+		if (this.hasInventoryItem(slot)) {
+			return false;
+		}
+
+		data.slot = slot;
+		this.state.inventory[slot] = data;
+		this.save();
+		this.updateUIInventorySlot(slot);
+		return data;
+	}
+
+	removeInventoryItem(slot) {
+		if (this.hasInventoryItem(slot)) {
+			const data = this.state.inventory[slot];
+			this.state.inventory[slot] = null;
+			this.save();
+			this.updateUIInventorySlot(slot);
+			return data;
+		}
+	}
+
+	updateUIInventorySlot(slot) {
+		if (this.hasInventoryItem(slot))
+			this.ui.showInventoryItem(slot, this.state.inventory[slot]);
+		else
+			this.ui.hideInventoryItem(slot);
 	}
 
 }

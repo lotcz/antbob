@@ -26,23 +26,28 @@ html, body {
 	display: none;
 }
 
-.dialog {
-	background-color: black;
-	color: white;
-	font-family: 'Courier new', Arial, sans-serif;
-	font-size: 22pt;
-	opacity: 0.93;
-	padding: 20px;
-	margin: 20px;
-	text-align: center;
-	border-radius: 10px;
+.row {
+	display: flex;
+	flex-flow: row nowrap;
 }
 
 .fixed {
 	position: fixed;
 }
 
-.interaction {
+.dialog {
+	background-color: black;
+	color: white;
+	font-family: 'Courier new', Arial, sans-serif;
+	font-size: 22pt;
+	opacity: 0.7;
+	padding: 20px;
+	margin: 20px;
+	text-align: center;
+	border-radius: 10px;
+}
+
+.interaction-dialog {
 	position: absolute;
 }
 
@@ -65,22 +70,21 @@ html, body {
 	align-items: stretch;
 }
 
-#talk_header {
+.talk-header {
 	display: flex;
 	flex-direction: row;
 	justify-content: flex-start;
 	align-items: start;
 }
 
-#talk_portrait {
+.talk-portrait {
 	width: 100px;
 	height: 100px;
 	margin-right: 20px;
 	opacity: 1;
 }
 
-#talk_name,
-#active_item_name {
+.talk-name {
 	flex: 1;
 	padding-bottom: 10px;
 	border-color: #404040;
@@ -88,8 +92,7 @@ html, body {
 	border-style: solid;
 }
 
-#talk_text,
-#inventory #active_item_text {
+.talk-text {
 	flex: 1;
 	font-size: 0.75em;
 	overflow-x: hidden;
@@ -97,7 +100,7 @@ html, body {
 	margin-top: 20px;
 }
 
-#continue_hint {
+.continue-hint {
 	flex: 0;
 }
 
@@ -106,9 +109,10 @@ html, body {
 	left: 0px;
 	text-align: left;
 	max-width: 220px;
+	flex-direction: column;
 }
 
-#speedometer {
+.speedometer {
 	top: 0px;
 	right: 0px;
 	text-align: right;

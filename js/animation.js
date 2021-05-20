@@ -21,6 +21,7 @@ export default class AnimationHelper {
 			if (object.isMesh) {
 				object.castShadow = true;
 				object.receiveShadow = true;
+				object.frustumCulled = false;
 			 }
 		});
 

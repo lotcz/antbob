@@ -15,30 +15,36 @@ export default class RootsHelper {
 	addRoots(threeObject, levels) {
 		if (levels <= 0) return;
 
-		var sphere = new THREE.Mesh(new THREE.IcosahedronGeometry(threeObject.scale.x * threeObject.geometry.parameters.radiusBottom, 3), threeObject.material);
+		var sphere = new THREE.Mesh(new THREE.IcosahedronGeometry(threeObject.scale.x * threeObject.geometry.parameters.radiusBottom * 1.2, 3), threeObject.material);
 		sphere.position.copy(threeObject.position);
 		sphere.position.y -= threeObject.scale.y * threeObject.geometry.parameters.height * 0.5;
 		sphere.castShadow = threeObject.castShadow;
 		sphere.receiveShadow = threeObject.receiveShadow;
 		threeObject.parent.add(sphere);
 
-		var span = 0.02 * levels * 3;
+		var span = 0.05 * levels;
 		var arms = 2;
 		for (var i = 0; i < arms; i++) {
 			let root = this.addRoot(threeObject, levels);
-			root.quaternion.x = - span + (i * span);
-			root.quaternion.z = - span + (i * span);
+			let v = - (span / 2) + (i * span);
+			root.quaternion.x = v + (0.5 / levels);
+			//root.quaternion.y = v;
+			root.quaternion.z = v - (0.1 / levels);
+			//root.quaternion.y = (i * span);
 		}
 	}
 
 	addRoot(threeObject, levels) {
+		var scale = 0.5;
 		var group = new THREE.Group();
 		group.position.copy(threeObject.position);
 		group.position.y -= threeObject.scale.y * threeObject.geometry.parameters.height * 0.5;
 
 		var root = threeObject.clone();
-		root.scale.multiplyScalar(0.75);
-		root.position.set(0, - threeObject.scale.y * threeObject.geometry.parameters.height * 0.4, 0);
+		root.scale.x = threeObject.scale.x * scale;
+		root.scale.y = threeObject.scale.y * (scale + 0.25);
+		root.scale.z = threeObject.scale.z * scale;
+		root.position.set(0, - root.scale.y * threeObject.geometry.parameters.height * 0.5, 0);
 
 		group.add(root);
 		this.addRoots(root, levels - 1);

@@ -1,20 +1,35 @@
 CONTROLS
 ========
 
-- walk/run
-- hop/jump
-- interact/take/talk
-- throw/fire
+ - walk/run
+ - hop/jump
+ - interact/take/talk
+ - drop/throw/fire
+
+Inventory Slots
+
+ - left hand
+ - right hand
+ - backpack
+ - head
 
 can have ammo (stones, ...) and throw it
-can hold an item and throw it, runs slower
+can hold an item in both hands and drop it, runs slower
 can have a backpack to hold special ammo, then "shoot" it
+
+taken items can
+ - appear again after some time (generator)
+ - remain where they are dropped (tracking)
+
+ - health?
+ - lives?
+ - save/load?
 
 STORY
 =====
 
 Anthill is under a lockdown because of unknown disease killing all insects. Bob and Alice can't go outside to play and are bored.
-Alice convince Bob to open a tunnel to the playground. There, Bob meets the sick bee and when he returns to the anthill, everyone gets sick.
+Alice convince Bob to open a tunnel to the playground to find Bob's cousin. There, Bob meets the sick bee and when he returns to the anthill, everyone gets sick.
 Bob is then cast out and must find a cure.
 
 Bob meets Reds - red ants living in tee-pees, sworn enemies of the black ants.
@@ -25,24 +40,46 @@ He must put cigarettes off by pushing it off the table first and then using Bigf
 
 As a reward, Reds show Bob where to get cedar resin to cure the anthill.
 Bob must transport the resin on the Bigfoot to the Playground to crush it into pieces.
-Bob bring piece of resin to the Queen and wins.
+
+Bob bring piece of resin to the Queen who is under attack of a centipede (guard ants are sick).
+Bob defeats centipede, give queen a cure and wins.
 
 LEVELS
 ======
 
-0. Home
+0. Playground
+	Learn moving and activating things.
 
-	Learn moving and activating things, receive pheromessage and leave.
+	Feed leaves to mealbug to get honey dew. Lure forest flies on honey dew.
+	Avoid Puccella plants or give them forest flies.
 
-	Switching light on/off.
+	save ladybug from Puccella plants by dropping rock on the plant.
 
-	Harvest honey dew from hanging "bug".
+	sick bee
 
-	Uncle Bob's backpack is there, but cannot be taken now. Uncle Bob won't also let Bob run around.
+	Bring Alice her cap from cousin Bob.
 
-	"My dear ants, there is an unknown disease outside that is killing ants and other insects.
-	Everyone must stay inside our anthill until situation gets better.
-	Your Queen."
+1. Bob's Room
+
+
+
+	Switching lights on/off. Can take blueberry, cube or rubik, but nothing to do with it.
+
+	Can get a firebug when main lights are off.
+
+	Take school bag.
+
+2. Home
+	Uncle Bob is here. Uncle Bob's backpack is there, but cannot be taken now. Uncle Bob won't also let Bob run around.
+
+	Feed young firebug or leaves to hanging small mealbug to harvest honey dew. Serve breakfast.
+
+	Receive pheromessage and leave.
+
+	"My dear ants, there is an unknown disease outside!
+		Our fellow ant brothers and other forest animals fall to the ground dead.
+    	Everyone stay inside our anthill until situation gets better.
+    	Your Majesty The Queen"
 
 	(Ant Bob Song)
 
@@ -50,9 +87,10 @@ LEVELS
 	Bob can take backpack.
 	(Mr. Gonzo sad song)
 
-1. City
+2. City
 
-	See doors to many other ant homes. Some city rush. Meet Bigfoot driver Bob.
+	See doors to many other ant homes.
+	Some city rush. Running ants and driving cars. Meet Bigfoot driver Bob.
 	Run and jump through "vast" ant city.
 
 	Paternoster - Flea powered.
@@ -62,34 +100,35 @@ LEVELS
 
 	{ exit to Home, School, gate to Pond}
 
-2. School
+3. School
 	Meet Alice, meet little ant students that are lively, learn jumping, unlock exit to Playground,
 
 	Firebug Frank will shine to find a tunnel entrance.
 
 	{exit to City, tunnel to Playground}
 
-3. Playground
+4. Playground
 	mass/physics usage, avoid spider, save ladybug from spider, sick bee
 	spider & web (throw it a bait, then sneak under)
 	ladybug (ants eat her in the end)
 
 	{exit to School, Camp}
 
-4. Camp
+5. Camp
 	Red Ants!
 	Tree camp of the reds is very vertical maze of leaves and stalks.
 
 	"We do not suffer from the disease, because we use cedar resin as a disinfectant."
 	{exit to Pond, Playground}
 
-5. Pond
+6. Pond
 	Humans! Climb on a table
+	Rogalo fall?
 
 	learn driving, put off cigarette by pushing it into water with a vehicle.
 
 	{exit to City, Camp}
 
-6. Queen Lair
+7. Queen Lair
 	- centipede
 	crush resin and deliver to queen and eggs

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Ant Bob</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="main.css">
+		<link rel="shortcut icon" type="image/jpg" href="favicon.ico"/>
+		<script src="node_modules/three/examples/js/libs/ammo.wasm.js"></script>
+	</head>
+	<body>
+		<div id="container"></div>
+		<div id="ui">
+		</div>
+		<script type="module">
+			import UI from './js/ui.js';
+
+			Ammo().then(function (AmmoLib) {
+				window.Ammo = Ammo = AmmoLib;
+				var ui = new UI();
+			});
+		</script>
+	</body>
+</html>

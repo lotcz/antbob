@@ -34,17 +34,29 @@ Put this on camera:
 
 ```
 {
-  "physics": {
-    "type": "rigidBox",
-    "mass": 0
-  }
+	"physics": {
+    	"type": "rigidBox",
+    	"mass": 0
+  	}
 }
 
 {
-  "physics": {
-    "type": "rigidCylinder",
-    "mass": 0
-  }
+	"physics": {
+    	"type": "rigidCylinder",
+    	"mass": 0
+  	}
+}
+```
+
+Reference:
+
+```
+{
+	"physics": {
+		"type": "rigidCylinder",
+		"ref": "Cylinder",
+		"mass": 0.3
+	}
 }
 ```
 
@@ -76,6 +88,7 @@ Soft body:
 {
   "interaction": {
     "name": "Blue Light",
+    "maxDistance": 1,
     "interact": {
       "type": "toggle",
       "accomplishment": "switch-light"
@@ -86,6 +99,7 @@ Soft body:
 
 ### Editor scripts
 
+Spot light:
 ```
 var spotInitV = new THREE.Vector3();
 var spotTargetV = new THREE.Vector3();
@@ -102,5 +116,25 @@ function update( event ) {
 	phase -= 2500;
 	spotTargetV.y = spotInitV.y + (phase/300);
 	this.lookAt(spotTargetV);
+}
+```
+
+Animation:
+
+```
+function init() {
+	this.mixer = new THREE.AnimationMixer( this );
+	const clip = THREE.AnimationClip.findByName( this.animations, "Idle" );
+
+	if ( clip ) {
+		console.log(clip);
+		const action = this.mixer.clipAction( clip );
+		action.play();
+	}
+
+}
+
+function update(event) {
+	this.mixer.update(event.delta / 1000);
 }
 ```

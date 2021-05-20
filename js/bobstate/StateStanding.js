@@ -22,11 +22,11 @@ const IDLE_TIMEOUT = 3000;
 export default class StateStanding extends BobState {
 
 	activate() {
-		this.antbob.animation.activateAction('Stand', ANIMATION_TRANSITION_DURATION * 0.5, false);
+		this.antbob.animation.activateAction('StandingHolding', ANIMATION_TRANSITION_DURATION * 0.5, false);
 		this.idleTimeout = IDLE_TIMEOUT;
 		this.antbob.body.setFriction(FRICTION_STATIC);
 		this.antbob.body.setRollingFriction(10);
-		//this.antbob.body.setLinearVelocity(new Ammo.btVector3(0, 0, 0));
+		this.antbob.body.setLinearVelocity(new Ammo.btVector3(0, 0, 0));
 		//athis.antbob.body.setAngularVelocity(new Ammo.btVector3(0, 0, 0));
 		this.antbob.speed = 0;
 	}
