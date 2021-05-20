@@ -1,10 +1,10 @@
 CONTROLS
 ========
 
-- walk/run
-- hop/jump
-- interact/take/talk
-- throw/fire
+ - walk/run
+ - hop/jump
+ - interact/take/talk
+ - drop/throw/fire
 
 Inventory Slots
 
@@ -14,8 +14,16 @@ Inventory Slots
  - head
 
 can have ammo (stones, ...) and throw it
-can hold an item in both hands and throw it, runs slower
+can hold an item in both hands and drop it, runs slower
 can have a backpack to hold special ammo, then "shoot" it
+
+taken items can
+ - appear again after some time (generator)
+ - remain where they are dropped (tracking)
+
+ - health?
+ - lives?
+ - save/load?
 
 STORY
 =====
@@ -32,16 +40,39 @@ He must put cigarettes off by pushing it off the table first and then using Bigf
 
 As a reward, Reds show Bob where to get cedar resin to cure the anthill.
 Bob must transport the resin on the Bigfoot to the Playground to crush it into pieces.
-Bob bring piece of resin to the Queen and wins.
+
+Bob bring piece of resin to the Queen who is under attack of a centipede (guard ants are sick).
+Bob defeats centipede, give queen a cure and wins.
 
 LEVELS
 ======
 
-0. Bob's Room
-
+0. Playground
 	Learn moving and activating things.
 
-	Switching light on/off. Can take blueberry, cube or rubik, but nothing to do with it.
+	Feed leaves to mealbug to get honey dew. Lure forest flies on honey dew.
+	Avoid Puccella plants or give them forest flies.
+
+	save ladybug from Puccella plants by dropping rock on the plant.
+
+	sick bee
+
+	Bring Alice her cap from cousin Bob.
+
+1. Bob's Room
+
+
+
+	Switching lights on/off. Can take blueberry, cube or rubik, but nothing to do with it.
+
+	Can get a firebug when main lights are off.
+
+	Take school bag.
+
+2. Home
+	Uncle Bob is here. Uncle Bob's backpack is there, but cannot be taken now. Uncle Bob won't also let Bob run around.
+
+	Feed young firebug or leaves to hanging small mealbug to harvest honey dew. Serve breakfast.
 
 	Receive pheromessage and leave.
 
@@ -49,11 +80,6 @@ LEVELS
 		Our fellow ant brothers and other forest animals fall to the ground dead.
     	Everyone stay inside our anthill until situation gets better.
     	Your Majesty The Queen"
-
-1. Home
-	Harvest honey dew from hanging "bug".
-
-	Uncle Bob's backpack is there, but cannot be taken now. Uncle Bob won't also let Bob run around.
 
 	(Ant Bob Song)
 
@@ -63,7 +89,8 @@ LEVELS
 
 2. City
 
-	See doors to many other ant homes. Some city rush. Meet Bigfoot driver Bob.
+	See doors to many other ant homes.
+	Some city rush. Running ants and driving cars. Meet Bigfoot driver Bob.
 	Run and jump through "vast" ant city.
 
 	Paternoster - Flea powered.
@@ -96,6 +123,7 @@ LEVELS
 
 6. Pond
 	Humans! Climb on a table
+	Rogalo fall?
 
 	learn driving, put off cigarette by pushing it into water with a vehicle.
 

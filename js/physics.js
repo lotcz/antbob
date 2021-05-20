@@ -180,8 +180,6 @@ export default class PhysicsHelper {
 		const rbInfo = new Ammo.btRigidBodyConstructionInfo(data.mass, motionState, physicsShape, localInertia);
 		const body = new Ammo.btRigidBody( rbInfo );
 
-		if (data.ref) console.log(scale);
-
 		const collision = body.getCollisionShape();
 		collision.setLocalScaling(new Ammo.btVector3(scale.x, scale.y, scale.z));
 
@@ -403,8 +401,8 @@ export default class PhysicsHelper {
 			const association = geometry.ammoIndexAssociation;
 			const numVerts = association.length;
 			const nodes = softBody.get_m_nodes();
-			for ( let j = 0; j < numVerts; j ++ ) {
 
+			for ( let j = 0; j < numVerts; j ++ ) {
 				const node = nodes.at( j );
 				const nodePos = node.get_m_x();
 				const x = nodePos.x();
@@ -414,11 +412,9 @@ export default class PhysicsHelper {
 				const nx = nodeNormal.x();
 				const ny = nodeNormal.y();
 				const nz = nodeNormal.z();
-
 				const assocVertex = association[ j ];
 
 				for ( let k = 0, kl = assocVertex.length; k < kl; k ++ ) {
-
 					let indexVertex = assocVertex[ k ];
 					volumePositions[ indexVertex ] = x;
 					volumeNormals[ indexVertex ] = nx;
@@ -428,9 +424,7 @@ export default class PhysicsHelper {
 					indexVertex ++;
 					volumePositions[ indexVertex ] = z;
 					volumeNormals[ indexVertex ] = nz;
-
 				}
-
 			}
 
 			geometry.attributes.position.needsUpdate = true;
@@ -483,6 +477,7 @@ export default class PhysicsHelper {
 
 			if (userData0.antbob || userData1.antbob) {
 				this.bobCollided = true;
+				return;
 				//console.log('collision');
 			}
 			/*

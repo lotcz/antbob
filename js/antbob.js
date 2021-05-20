@@ -80,7 +80,7 @@ export default class AntBob {
 			this.direction.applyQuaternion(entry.quaternion);
 		}
 
-		this.animation = new AnimationHelper(this.player, 'models/antbob-animations.glb?v=10', (model) => this.onAnimationLoaded(model));
+		this.animation = new AnimationHelper(this.player, 'models/antbob.glb?v=1', (model) => this.onAnimationLoaded(model));
 
 		// STATES
 		this.states = []
@@ -311,18 +311,28 @@ export default class AntBob {
 		loader.load(
 			'models/' + data.model + '.json?v=' + Math.random(),
 			function ( obj ) {
-				bone.add( obj );
+				let wrapper = null;
+				if (data.itemWrapper) {
+					let wrapperContent = obj.getObjectByName(data.itemWrapper);
+					if (!wrapperContent) return;
+					wrapperContent.parent.remove(wrapperContent);
+					wrapperContent.add(obj);
+					wrapper = new THREE.Group();
+					wrapper.add(wrapperContent);
+				}
+				if (!wrapper) wrapper = obj;
+				bone.add( wrapper );
 				if (slot === 'leftHand') {
 					const quaternion = new THREE.Quaternion();
 					quaternion.setFromAxisAngle(Y_AXIS, Math.PI * -0.5);
-					obj.applyQuaternion(quaternion);
+					wrapper.applyQuaternion(quaternion);
 				}
 				if (slot === 'rightHand') {
 					const quaternion = new THREE.Quaternion();
 					quaternion.setFromAxisAngle(Y_AXIS, Math.PI * -0.5);
-					obj.applyQuaternion(quaternion);
+					wrapper.applyQuaternion(quaternion);
 				}
-				bone.userData['itemMesh'] = obj;
+				bone.userData['itemMesh'] = wrapper;
 			},
 			// onProgress callback
 			null,
