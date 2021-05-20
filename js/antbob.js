@@ -294,7 +294,10 @@ export default class AntBob {
 		if (bone && bone.userData && bone.userData.itemMesh)
 		{
 			bone.remove(bone.userData.itemMesh);
-			return bone.userData.itemMesh;
+			const mesh = bone.userData.realItemMesh || bone.userData.itemMesh;
+			bone.userData.realItemMesh = null;
+			bone.userData.itemMesh = null;
+			return mesh;
 		}
 	}
 
@@ -319,6 +322,7 @@ export default class AntBob {
 					wrapperContent.add(obj);
 					wrapper = new THREE.Group();
 					wrapper.add(wrapperContent);
+					bone.userData['realItemMesh'] = obj;
 				}
 				if (!wrapper) wrapper = obj;
 				bone.add( wrapper );
