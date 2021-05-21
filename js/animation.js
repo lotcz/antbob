@@ -2,18 +2,24 @@ import { GLTFLoader } from '../node_modules/three/examples/jsm/loaders/GLTFLoade
 
 export default class AnimationHelper {
 
-	constructor(player, path, onloaded) {
+	constructor(player, path) {
 		this.player = player;
-		this.onloaded = onloaded;
+		this.path = path;
 		this.model = null;
 		this.actions = [];
 		this.currentAction = null;
 		this.speed = 1;
-		const loader = new GLTFLoader();
-		loader.load(path, (gltf) => this.onModelLoaded(gltf));
+		this.loaded = false;
 	}
 
-	onModelLoaded(gltf) {
+	async load() {
+		const path = this.path;
+		const promise = new Promise(function(resolve, reject) {
+			const loader = new GLTFLoader();
+			loader.load(path, (gltf) => resolve(gltf), null, (err) => reject(err));
+		});
+		const gltf = await promise;
+
 		this.model = gltf.scene;
 		this.player.scene.add(this.model);
 
@@ -40,8 +46,8 @@ export default class AnimationHelper {
 			}
 		}
 
-		if (this.onloaded)
-			this.onloaded(this.model);
+		this.loaded = true;
+		return this.model;
 	}
 
 	update(event) {

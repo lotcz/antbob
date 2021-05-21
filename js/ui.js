@@ -50,17 +50,16 @@ export default class UI {
 		//console.log(this.story.state);
 
 		this.player = new Player(this);
+	}
 
+	async load() {
 		this.showInteraction({ name: 'Loading...'});
-		this.player.loadFile(
-			'levels/' + this.story.getLevel() + '/app.json?v=' + Math.random(),
-			() =>  {
-				this.story.processUserData(this.player.userdata);
-				this.hideInteraction();
-				this.showInventory();
-				this.player.play();
-			}
-		);
+		await this.player.loadLevel('levels/' + this.story.getLevel() + '/app.json?v=' + Math.random());
+
+		this.story.processUserData(this.player.userdata);
+		this.hideInteraction();
+		this.showInventory();
+		this.player.play();
 	}
 
 	loadLevel(name) {

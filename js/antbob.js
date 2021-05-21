@@ -49,13 +49,12 @@ const SLOT_BONES = {
 
 export default class AntBob {
 
-	constructor(player, onloaded) {
+	constructor(player) {
 		this.player = player;
 		this.resources = player.resources;
 		this.story = player.story;
 		this.physics = player.physics;
 		this.controls = player.controls;
-		this.onLoaded = onloaded;
 
 		this.loaded = false;
 		this.direction = X_AXIS.clone();
@@ -81,7 +80,7 @@ export default class AntBob {
 			this.direction.applyQuaternion(entry.quaternion);
 		}
 
-		this.animation = new AnimationHelper(this.player, 'models/antbob.glb?v=1', (model) => this.onAnimationLoaded(model));
+		this.animation = new AnimationHelper(this.player, 'models/antbob.glb?v=1');
 
 		// STATES
 		this.states = []
@@ -136,7 +135,10 @@ export default class AntBob {
 		});
 	}
 
-	onAnimationLoaded(model) {
+	async load() {
+		await this.animation.load();
+		const model = this.animation.model;
+
 		this.processMaterials(model);
 		this.model = model;
 		this.group.add(model);
@@ -182,7 +184,6 @@ export default class AntBob {
 		this.changeState(STATE_STANDING);
 
 		this.loaded = true;
-		if (this.onLoaded) this.onLoaded();
 	}
 
 	updateInventorySlot(slot) {

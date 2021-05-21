@@ -33,12 +33,14 @@ export default class Player {
 		this.antbob = null;
 }
 
-	loadFile(file, onLoaded) {
-		const loader = new THREE.FileLoader();
-		loader.load(file, (text) => this.load(JSON.parse(text), onLoaded));
-	}
+	async loadLevel(file) {
+		const promise = new Promise(function(resolve, reject) {
+			const loader = new THREE.FileLoader();
+			loader.load(file, (text) => resolve(text), null, (err) => reject(err));
+		});
+		const text = await promise;
+		const json = JSON.parse(text);
 
-	load(json, onBobLoaded) {
 		this.project = json.project;
 
 		if ( this.project.shadows !== undefined ) this.renderer.shadowMap.enabled = this.project.shadows;
@@ -122,11 +124,13 @@ export default class Player {
 		this.events.update.push((e) => this.physics.update(e));
 
 		// BOB
-		var bob = this.antbob = new AntBob(this, onBobLoaded);
-		this.events.update.push((e) => bob.update(e));
+		this.antbob = new AntBob(this);
+		this.events.update.push((e) => this.antbob.update(e));
 
-		var interaction = this.interaction = new InteractionHelper(this, this.controls, this.antbob, this.ui);
-		this.events.update.push((e) => interaction.update(e));
+		await this.antbob.load();
+
+		this.interaction = new InteractionHelper(this, this.controls, this.antbob, this.ui);
+		this.events.update.push((e) => this.interaction.update(e));
 
 		// SOUND
 		//this.sound = new SoundHelper('sound/forest_1.mp3');
