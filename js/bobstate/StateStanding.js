@@ -22,7 +22,8 @@ const IDLE_TIMEOUT = 3000;
 export default class StateStanding extends BobState {
 
 	activate() {
-		this.antbob.animation.activateAction('StandingHolding', ANIMATION_TRANSITION_DURATION * 0.5, false);
+		const animName = this.antbob.hasItemInBothHands() ? 'StandingHolding' : 'Stand';
+		this.antbob.animation.activateAction(animName, ANIMATION_TRANSITION_DURATION * 0.5, false);
 		this.idleTimeout = IDLE_TIMEOUT;
 		this.antbob.body.setFriction(FRICTION_STATIC);
 		this.antbob.body.setRollingFriction(10);

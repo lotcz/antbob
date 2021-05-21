@@ -135,21 +135,28 @@ export default class StoryHelper {
 
 	 /* inventory */
 	hasInventoryItem(slot) {
+		if (slot === 'rightHand' && this.hasItemInBothHands('leftHand')) {
+			return true;
+		}
 		return (slot in this.state.inventory) && (this.state.inventory[slot] != null);
 	}
 
+	hasItemInBothHands() {
+		return (this.hasInventoryItem('leftHand') && this.state.inventory['leftHand'].slot === 'both');
+	}
+
 	addInventoryItem(slot, data) {
-		if (slot == 'hand') slot = this.hasInventoryItem('leftHand') ? 'rightHand' : 'leftHand';
+		if (slot === 'hand') slot = this.hasInventoryItem('leftHand') ? 'rightHand' : 'leftHand';
+		if (slot === 'both') slot = this.hasInventoryItem('rightHand') ? 'rightHand' : 'leftHand';
 
 		if (this.hasInventoryItem(slot)) {
 			return false;
 		}
 
-		data.slot = slot;
 		this.state.inventory[slot] = data;
 		this.save();
 		this.updateUIInventorySlot(slot);
-		return data;
+		return slot;
 	}
 
 	removeInventoryItem(slot) {

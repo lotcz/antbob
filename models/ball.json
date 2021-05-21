@@ -46,7 +46,13 @@
 				"mass": 0.033
 			},
 			"interaction": {
-				"name": "My Ball"
+				"name": "My Ball",
+				"interact": {
+					"type": "item",
+					"slot": "both",
+					"portrait": "ball",
+					"model": "ball"
+				}
 			}
 		},
 		"layers": 1,

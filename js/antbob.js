@@ -188,7 +188,7 @@ export default class AntBob {
 
 	updateInventorySlot(slot) {
 		if (this.story.hasInventoryItem(slot))
-			this.loadItem(this.story.state.inventory[slot]);
+			this.loadItem(slot, this.story.state.inventory[slot]);
 		else
 			this.unloadItem(slot);
 	}
@@ -268,10 +268,14 @@ export default class AntBob {
 		this.state.update(event);
 	}
 
+	hasItemInBothHands() {
+		return this.story.hasItemInBothHands();
+	}
+
 	dropItem(slot) {
 		const item = this.story.removeInventoryItem(slot);
 		if (item) {
-			const mesh = this.unloadItem(item.slot);
+			const mesh = this.unloadItem(slot);
 			const newMesh = mesh.clone();
 			const pos = this.dummy.position.clone();
 			pos.add(this.direction);
@@ -302,52 +306,48 @@ export default class AntBob {
 		}
 	}
 
-	loadItem(data) {
-		let slot = data.slot;
-
+	async loadItem(slot, data) {
 		this.unloadItem(slot);
+
+		if (!data) return;
 
 		const boneName = SLOT_BONES[slot];
 		const bone = this.model.getObjectByName(boneName);
 
-		//console.log(this.model);
-		this.resources.load(
-			data.model,
-			function (obj) {
-				let wrapper = null;
-				if (data.itemWrapper) {
-					let wrapperContent = obj.getObjectByName(data.itemWrapper);
-					if (!wrapperContent) return;
-					wrapperContent.parent.remove(wrapperContent);
-					wrapperContent.add(obj);
-					wrapper = new THREE.Group();
-					wrapper.add(wrapperContent);
-					bone.userData['realItemMesh'] = obj;
-				}
-				if (!wrapper) wrapper = obj;
-				bone.add( wrapper );
-				if (slot === 'leftHand') {
-					const quaternion = new THREE.Quaternion();
-					quaternion.setFromAxisAngle(Y_AXIS, Math.PI * -0.5);
-					wrapper.applyQuaternion(quaternion);
-				}
-				if (slot === 'rightHand') {
-					const quaternion = new THREE.Quaternion();
-					quaternion.setFromAxisAngle(Y_AXIS, Math.PI * -0.5);
-					wrapper.applyQuaternion(quaternion);
-				}
-				bone.userData['itemMesh'] = wrapper;
-			}
-		);
+		const resource = await this.resources.load(data.model);
+		const obj = resource.clone();
+
+		let wrapper = null;
+		if (data.itemWrapper) {
+			let wrapperContent = obj.getObjectByName(data.itemWrapper);
+			if (!wrapperContent) return;
+			wrapperContent.parent.remove(wrapperContent);
+			wrapperContent.add(obj);
+			obj.position.set(0,0,0);
+			wrapper = new THREE.Group();
+			wrapper.add(wrapperContent);
+			bone.userData['realItemMesh'] = obj;
+		}
+		if (!wrapper) wrapper = obj;
+
+		console.log(wrapper);
+
+		bone.add( wrapper );
+		if (slot === 'leftHand' || slot === 'rightHand') {
+			const quaternion = new THREE.Quaternion();
+			quaternion.setFromAxisAngle(Y_AXIS, Math.PI * -0.5);
+			wrapper.applyQuaternion(quaternion);
+		}
+		bone.userData['itemMesh'] = wrapper;
 	}
 
 	takeItem(data) {
 		let slot = data.slot;
-		const item = this.story.addInventoryItem(slot, data);
-		if (!item) return false;
+		slot = this.story.addInventoryItem(slot, data);
+		if (!slot) return false;
 
-		this.loadItem(item);
-		return item;
+		this.loadItem(slot, data);
+		return data;
 	}
 
 	setVehicle() {

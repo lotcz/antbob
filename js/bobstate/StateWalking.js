@@ -19,7 +19,8 @@ const WALKING_ACCELERATION = 0.0045;
 
 export default class StateWalking extends BobState {
 	activate() {
-		this.antbob.animation.activateAction('WalkingHolding', ANIMATION_TRANSITION_DURATION * 2, false);
+		const animName = this.antbob.hasItemInBothHands() ? 'WalkingHolding' : 'Walking';
+		this.antbob.animation.activateAction(animName, ANIMATION_TRANSITION_DURATION * 2, false);
 		this.antbob.animation.speed = 1.2;
 		this.antbob.body.setFriction(FRICTION_MOVEMENT);
 		this.antbob.body.setRollingFriction(0);

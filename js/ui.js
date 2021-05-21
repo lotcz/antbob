@@ -165,6 +165,10 @@ export default class UI {
 	}
 
 	showInventoryItem(slot, data) {
+		if (!data) {
+			this.hideInventoryItem(slot);
+			return;
+		}
 		const element = this.inventorySlots[slot];
 		const portrait = 'portraits/' + data.portrait + '.png';
 		element.innerHTML = '<img src="' + portrait + '" />';

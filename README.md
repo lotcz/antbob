@@ -97,6 +97,22 @@ Soft body:
 }
 ```
 
+Items:
+
+```json
+{
+  "interaction": {
+    "name": "Backpack",
+    "interact": {
+      "type": "item",
+      "slot": "backpack",
+      "portrait": "backpack",
+      "model": "backpack"
+    }
+  }
+}
+```
+
 ### Editor scripts
 
 Spot light:

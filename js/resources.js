@@ -14,7 +14,8 @@ export default class ResourcesHelper {
 	}
 
 	async loadAndAdd(node, res) {
-		const obj = await this.load(res);
+		const resource = await this.load(res);
+		const obj = resource.clone();
 		node.add(obj);
 		this.userdata.extractUserData(obj);
 	}
