@@ -72,7 +72,7 @@ export default class PhysicsHelper {
 	}
 
 	processUserData(userdata) {
-		for (var i = 0; i < userdata.userData.physics.length; i++) {
+		for (let i = 0; i < userdata.userData.physics.length; i++) {
 			this.processUDataNode(userdata.userData.physics[i]);
 		}
 	}

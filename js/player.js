@@ -1,3 +1,4 @@
+import ResourcesHelper from './resources.js';
 import PhysicsHelper from './physics.js';
 import StairsHelper from './stairs.js';
 import UserdataHelper from './userdata.js';
@@ -33,14 +34,8 @@ export default class Player {
 }
 
 	loadFile(file, onLoaded) {
-		var loader = new THREE.FileLoader();
-		var _this = this;
-		loader.load(file, function ( text ) {
-			_this.load(
-				JSON.parse(text),
-				onLoaded
-			 );
-		});
+		const loader = new THREE.FileLoader();
+		loader.load(file, (text) => this.load(JSON.parse(text), onLoaded));
 	}
 
 	load(json, onBobLoaded) {
@@ -112,6 +107,9 @@ export default class Player {
 
 		// USERDATA
 		this.userdata = new UserdataHelper(this.scene);
+
+		// RESOURCES
+		this.resources = new ResourcesHelper(this);
 
 		// STAIRS
 		var stairs = new StairsHelper(this);

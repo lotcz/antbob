@@ -1,6 +1,3 @@
-import PhysicsHelper from './physics.js';
-import UserdataHelper from './userdata.js';
-
 export default class StairsHelper {
 
 	constructor(player) {

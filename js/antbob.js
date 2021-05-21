@@ -51,6 +51,7 @@ export default class AntBob {
 
 	constructor(player, onloaded) {
 		this.player = player;
+		this.resources = player.resources;
 		this.story = player.story;
 		this.physics = player.physics;
 		this.controls = player.controls;
@@ -173,7 +174,6 @@ export default class AntBob {
 			}
 		);
 		this.physics.addUserPointer(this.body, this.dummy);
-
 
 		// inventory
 		for (let slot in this.story.state.inventory)
@@ -310,10 +310,9 @@ export default class AntBob {
 		const bone = this.model.getObjectByName(boneName);
 
 		//console.log(this.model);
-		const loader = new THREE.ObjectLoader();
-		loader.load(
-			'models/' + data.model + '.json?v=' + Math.random(),
-			function ( obj ) {
+		this.resources.load(
+			data.model,
+			function (obj) {
 				let wrapper = null;
 				if (data.itemWrapper) {
 					let wrapperContent = obj.getObjectByName(data.itemWrapper);
@@ -337,12 +336,6 @@ export default class AntBob {
 					wrapper.applyQuaternion(quaternion);
 				}
 				bone.userData['itemMesh'] = wrapper;
-			},
-			// onProgress callback
-			null,
-			// onError callback
-			function ( err ) {
-				console.error( 'An error happened when loading item ', data);
 			}
 		);
 	}
