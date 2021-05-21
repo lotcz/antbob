@@ -107,11 +107,14 @@ export default class Player {
 		// MY STUFF
 		//
 
+		const tasks = [];
+
 		// USERDATA
 		this.userdata = new UserdataHelper(this.scene);
 
 		// RESOURCES
 		this.resources = new ResourcesHelper(this);
+		await this.resources.processUserData(this.userdata.userData.load);
 
 		// STAIRS
 		var stairs = new StairsHelper(this);
@@ -126,11 +129,12 @@ export default class Player {
 		// BOB
 		this.antbob = new AntBob(this);
 		this.events.update.push((e) => this.antbob.update(e));
-
-		await this.antbob.load();
+		tasks.push(this.antbob.load());
 
 		this.interaction = new InteractionHelper(this, this.controls, this.antbob, this.ui);
 		this.events.update.push((e) => this.interaction.update(e));
+
+		await Promise.all(tasks);
 
 		// SOUND
 		//this.sound = new SoundHelper('sound/forest_1.mp3');

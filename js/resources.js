@@ -3,25 +3,18 @@ export default class ResourcesHelper {
 	constructor(player) {
 		this.userdata = player.userdata;
 		this.cache = [];
-		this.processUserData(player.userdata.userData.load);
 	}
 
-	processUserData(userdata) {
-		const cache = this.cache;
-		for (var i = 0; i < userdata.length; i++) {
-			const node = userdata[i].node;
-			const data = userdata[i].data;
-
-			this.load(
-				data.model,
-				(obj) => this.addLoaded(node, data.model, obj)
-			);
-
+	async processUserData(userdata) {
+		const tasks = [];
+		for (let i = 0; i < userdata.length; i++) {
+			tasks.push(this.loadAndAdd(userdata[i].node, userdata[i].data.model));
 		}
+		await Promise.all(tasks);
 	}
 
-	addLoaded(node, res, obj) {
-		this.cache[res] = obj;
+	async loadAndAdd(node, res) {
+		const obj = await this.load(res);
 		node.add(obj);
 		this.userdata.extractUserData(obj);
 	}
@@ -30,31 +23,23 @@ export default class ResourcesHelper {
 		return (res in this.cache) && (this.cache[res] != null);
 	}
 
-	load(res, onLoaded) {
+	async load(res) {
 		if (this.isCached(res)) {
-			onLoaded(this.cache[res]);
-			return;
+			return this.cache[res];
 		}
 
-		const cache = this.cache;
-		const loader = new THREE.ObjectLoader();
-		loader.load(
-			'models/' + res + '.json?v=' + Math.random(),
-			function ( obj ) {
-				cache[res] = obj;
-				onLoaded(obj);
-			},
-			// onProgress callback
-			null,
-			// onError callback
-			function ( err ) {
-				console.error( 'An error happened when loading item ', res);
-			}
-		);
-
+		const promise = new Promise(function(resolve, reject) {
+			const loader = new THREE.ObjectLoader();
+			loader.load(
+				'models/' + res + '.json?v=' + Math.random(),
+				(obj) => resolve(obj),
+				null,
+				(err) => reject(err)
+			);
+		});
+		const obj = await promise;
+		this.cache[res] = obj;
+		return obj;
 	}
-
-
-
 
 }
