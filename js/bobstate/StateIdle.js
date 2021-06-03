@@ -24,24 +24,8 @@ export default class StateIdle extends BobState {
 	}
 
 	update(event) {
-		if (this.antbob.controls.jump) {
-			this.changeState(STATE_JUMPING);
-			return;
-		}
-
-		if (this.antbob.controls.moveForward) {
-			if (this.antbob.controls.run ^ this.antbob.controls.caps)
-				this.changeState(STATE_RUNNING);
-			else
-				this.changeState(STATE_WALKING);
-			return;
-		}
-
-		if (this.antbob.controls.moveBackward) {
-			if (this.antbob.controls.run ^ this.antbob.controls.caps)
-				this.changeState(STATE_RUNNING_BACKWARDS);
-			else
-				this.changeState(STATE_WALKING_BACKWARDS);
+		if (this.isActionRequired() || this.antbob.controls.anyMovement()) {
+			this.yieldState();
 			return;
 		}
 	}

@@ -1,0 +1,62 @@
+{
+	"metadata": {
+		"version": 4.5,
+		"type": "Object",
+		"generator": "Object3D.toJSON"
+	},
+	"geometries": [
+		{
+			"uuid": "2F896F3C-7793-4CF9-9F20-7AD5CEADF9CB",
+			"type": "BoxGeometry",
+			"width": 0.4,
+			"height": 0.2,
+			"depth": 0.2,
+			"widthSegments": 1,
+			"heightSegments": 1,
+			"depthSegments": 1
+		}],
+	"materials": [
+		{
+			"uuid": "8F7E6E1C-FDA6-46BB-BB9E-6299EDD2DE54",
+			"type": "MeshStandardMaterial",
+			"color": 4194818,
+			"roughness": 1,
+			"metalness": 0,
+			"emissive": 0,
+			"depthFunc": 3,
+			"depthTest": true,
+			"depthWrite": true,
+			"stencilWrite": false,
+			"stencilWriteMask": 255,
+			"stencilFunc": 519,
+			"stencilRef": 0,
+			"stencilFuncMask": 255,
+			"stencilFail": 7680,
+			"stencilZFail": 7680,
+			"stencilZPass": 7680
+		}],
+	"object": {
+		"uuid": "7A8831F0-F297-465D-B4B3-A4576196C43A",
+		"type": "Mesh",
+		"name": "BrickWall",
+		"userData": {
+			"physics": {
+				"type": "rigidBox",
+				"mass": 0.5
+			},
+			"interaction": {
+				"name": "Cube",
+				"interact": {
+					"type": "item",
+					"slot": "both",
+					"portrait": "cube",
+					"model": "cube"
+				}
+			}
+		},
+		"layers": 1,
+		"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0.110081,0,1],
+		"geometry": "2F896F3C-7793-4CF9-9F20-7AD5CEADF9CB",
+		"material": "8F7E6E1C-FDA6-46BB-BB9E-6299EDD2DE54"
+	}
+}

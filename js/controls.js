@@ -37,9 +37,13 @@ export default class Controls {
 		return this.moveLeft || this.moveRight;
 	}
 
+	isRunning() {
+		return this.run ^ this.caps;
+	}
+
 	onKeyDown(event) {
 		this.caps = event.getModifierState("CapsLock");
-		var key = event.keyCode ? event.keyCode : event.charCode;
+		const key = event.keyCode ? event.keyCode : event.charCode;
 		if (this.movementEnabled) {
 			switch (key) {
 				case 38: /*up*/
@@ -60,7 +64,7 @@ export default class Controls {
 
 	onKeyUp(event) {
 		this.caps = event.getModifierState("CapsLock");
-		var key = event.keyCode ? event.keyCode : event.charCode;
+		const key = event.keyCode ? event.keyCode : event.charCode;
 		//console.log("key:" + key);
 		switch( key ) {
 			case 38: /*up*/

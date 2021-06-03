@@ -16,7 +16,7 @@ import {
 	Y_AXIS,
 	Y_AXIS_INVERTED,
 	Z_AXIS,
-	RUNNING_SPEED
+	RUNNING_SPEED, STATE_THROWING
 } from './bobstate/BobState.js';
 
 import StateStanding from './bobstate/StateStanding.js';
@@ -27,6 +27,7 @@ import StateIdle from './bobstate/StateIdle.js';
 import StateFalling from './bobstate/StateFalling.js';
 import StateWalking from './bobstate/StateWalking.js';
 import StateWalkingBackwards from './bobstate/StateWalkingBackwards.js';
+import StateThrowing from './bobstate/StateThrowing.js';
 
 import Vehicle from './vehicle.js';
 import AnimationHelper from './animation.js';
@@ -37,8 +38,6 @@ const DUMMY_BODY_HEIGHT = 2.3 * DUMMY_BODY_SIZE;
 const HEIGHT_DELTA = DUMMY_BODY_HEIGHT * 1.5;
 const BOB_WEIGHT = 1;
 const ROTATION_SPEED = 0.004;
-
-const FIRE_TIMEOUT = 500;
 
 const SLOT_BONES = {
 	leftHand: 'mixamorigLeftHand',
@@ -92,6 +91,7 @@ export default class AntBob {
 		this.states[STATE_RUNNING_BACKWARDS] = new StateRunningBackwards(this);
 		this.states[STATE_WALKING] = new StateWalking(this);
 		this.states[STATE_WALKING_BACKWARDS] = new StateWalkingBackwards(this);
+		this.states[STATE_THROWING] = new StateThrowing(this);
 
 		// SOUND
 		this.dropSound = new SoundHelper('sound/jump_drop.ogg', false);
@@ -231,6 +231,8 @@ export default class AntBob {
 		this.group.lookAt(this.group.position.clone().add(this.direction));
 		//this.model.quaternion.set(this.dummy.quaternion.x, 0, this.dummy.quaternion.z, this.dummy.quaternion.w);
 
+		// MODEL ANIMATION
+		this.animation.update(event);
 
 		// STAND UP
 		var vector = new THREE.Vector3(this.dummy.quaternion.x, this.dummy.quaternion.y, this.dummy.quaternion.z);
@@ -239,21 +241,6 @@ export default class AntBob {
 			this.body.setAngularVelocity(new Ammo.btVector3(0, 0, 0));
 			this.body.applyTorqueImpulse(new Ammo.btVector3(vector.x, vector.y, vector.z));
 			//if (this.onGround) this.body.applyCentralImpulse(new Ammo.btVector3(0, 0.1, 0));
-		}
-
-		// MODEL ANIMATION
-		this.animation.update(event);
-
-		// FIRE
-		if (this.controls.fire && this.firing <= 0) {
-			if (this.story.hasInventoryItem('leftHand')){
-				this.dropItem('leftHand');
-			} else {
-				if (this.story.hasInventoryItem('rightHand')){
-					this.dropItem('rightHand');
-				}
-			}
-			this.firing = FIRE_TIMEOUT;
 		}
 
 		if (this.firing > 0) {
@@ -268,6 +255,10 @@ export default class AntBob {
 		this.state.update(event);
 	}
 
+	hasItemInHands() {
+		return this.story.hasInventoryItem('leftHand') || this.story.hasInventoryItem('rightHand');
+	}
+
 	hasItemInBothHands() {
 		return this.story.hasItemInBothHands();
 	}
@@ -278,18 +269,33 @@ export default class AntBob {
 			const mesh = this.unloadItem(slot);
 			const newMesh = mesh.clone();
 			const pos = this.dummy.position.clone();
-			pos.add(this.direction);
+			pos.add(this.direction.clone().multiplyScalar(0.5));
 			newMesh.position.copy(pos);
 			this.player.scene.add(newMesh);
-
 			this.physics.processMesh(newMesh);
 			this.player.userdata.extractUserData(newMesh);
-/*
-			var bulletVector = this.direction.clone();
-			bulletVector.add(Y_AXIS).multiplyScalar(5);
-			bulletBody.setLinearVelocity(new Ammo.btVector3(bulletVector.x, bulletVector.y, bulletVector.z));
+			return newMesh;
+		}
+	}
 
- */
+	throwItem(slot) {
+		const item = this.story.removeInventoryItem(slot);
+		if (item) {
+			const mesh = this.unloadItem(slot);
+			const newMesh = mesh.clone();
+			const pos = this.dummy.position.clone();
+			pos.add(this.direction.clone().multiplyScalar(0.5));
+			pos.add(Y_AXIS.clone().multiplyScalar(0.25));
+			newMesh.position.copy(pos);
+			this.player.scene.add(newMesh);
+			this.physics.processMesh(newMesh);
+			this.player.userdata.extractUserData(newMesh);
+			const bulletBody = newMesh.userData.physicsBody;
+			const bulletVector = this.direction.clone();
+			bulletVector.add(Y_AXIS);
+			bulletVector.multiplyScalar(3);
+			bulletBody.setLinearVelocity(new Ammo.btVector3(bulletVector.x, bulletVector.y, bulletVector.z));
+			return newMesh;
 		}
 	}
 
@@ -329,8 +335,6 @@ export default class AntBob {
 			bone.userData['realItemMesh'] = obj;
 		}
 		if (!wrapper) wrapper = obj;
-
-		console.log(wrapper);
 
 		bone.add( wrapper );
 		if (slot === 'leftHand' || slot === 'rightHand') {

@@ -135,7 +135,7 @@ export default class StoryHelper {
 
 	 /* inventory */
 	hasInventoryItem(slot) {
-		if (slot === 'rightHand' && this.hasItemInBothHands('leftHand')) {
+		if (slot === 'rightHand' && this.hasItemInBothHands()) {
 			return true;
 		}
 		return (slot in this.state.inventory) && (this.state.inventory[slot] != null);

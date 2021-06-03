@@ -11,6 +11,7 @@ export default class InteractionHelper {
 
 		this.target = null;
 		this.timeout = 0;
+		this.justDropped = false;
 	}
 
 	findNearest() {
@@ -34,7 +35,7 @@ export default class InteractionHelper {
 	update(event) {
 		var deltaTime = event.delta;
 
-		if (this.controls.interact && this.target !== null && this.target.data.interact) {
+		if (this.controls.interact && this.target !== null && this.target.data.interact && !this.justDropped) {
 			this.ui.hideInteraction();
 
 			if (this.target.data.interact.type == 'exit') {
@@ -61,6 +62,16 @@ export default class InteractionHelper {
 			this.target = null;
 			this.controls.interact = false;
 			return;
+		}
+
+		if (this.controls.interact && this.antbob.hasItemInHands()) {
+			const slot = this.antbob.story.hasInventoryItem('leftHand') ? 'leftHand' : 'rightHand';
+			this.antbob.dropItem(slot);
+			this.justDropped = true;
+		}
+
+		if (this.justDropped && !this.controls.interact) {
+			this.justDropped = false;
 		}
 
 		if (this.timeout <= 0) {

@@ -30,13 +30,7 @@ export default class StateFalling extends BobState {
 		}
 
 		if (this.antbob.onGround) {
-			if (this.antbob.controls.moveForward) {
-				this.changeState(STATE_RUNNING);
-			} else if (this.antbob.controls.moveBackward) {
-				this.changeState(STATE_RUNNING_BACKWARDS);
-			} else {
-				this.changeState(STATE_STANDING);
-			}
+			this.yieldState();
 		}
 	}
 

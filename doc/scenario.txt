@@ -61,8 +61,6 @@ LEVELS
 
 1. Bob's Room
 
-
-
 	Switching lights on/off. Can take blueberry, cube or rubik, but nothing to do with it.
 
 	Can get a firebug when main lights are off.
@@ -87,7 +85,7 @@ LEVELS
 	Bob can take backpack.
 	(Mr. Gonzo sad song)
 
-2. City
+3. City
 
 	See doors to many other ant homes.
 	Some city rush. Running ants and driving cars. Meet Bigfoot driver Bob.
@@ -100,28 +98,28 @@ LEVELS
 
 	{ exit to Home, School, gate to Pond}
 
-3. School
+4. School
 	Meet Alice, meet little ant students that are lively, learn jumping, unlock exit to Playground,
 
 	Firebug Frank will shine to find a tunnel entrance.
 
 	{exit to City, tunnel to Playground}
 
-4. Playground
-	mass/physics usage, avoid spider, save ladybug from spider, sick bee
+5. Playground 2
+	avoid spider, save ladybug from spider
 	spider & web (throw it a bait, then sneak under)
 	ladybug (ants eat her in the end)
 
 	{exit to School, Camp}
 
-5. Camp
+6. Camp
 	Red Ants!
 	Tree camp of the reds is very vertical maze of leaves and stalks.
 
 	"We do not suffer from the disease, because we use cedar resin as a disinfectant."
 	{exit to Pond, Playground}
 
-6. Pond
+7. Pond
 	Humans! Climb on a table
 	Rogalo fall?
 
@@ -129,6 +127,6 @@ LEVELS
 
 	{exit to City, Camp}
 
-7. Queen Lair
+8. Queen Lair
 	- centipede
 	crush resin and deliver to queen and eggs

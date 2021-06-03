@@ -99,6 +99,13 @@ Soft body:
 
 Items:
 
+Slots:
+ - hand
+ - both
+ - backpack
+ - head
+
+Define in separate JSON file:
 ```json
 {
   "interaction": {

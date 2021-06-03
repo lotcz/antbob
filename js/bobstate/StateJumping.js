@@ -53,25 +53,7 @@ export default class StateJumping extends BobState {
 
 	update(event) {
 		if (this.time <= 0) {
-			if (!this.antbob.onGround) {
-				this.changeState(STATE_FALLING);
-				return;
-			}
-
-			if (this.antbob.controls.moveForward) {
-				if (this.antbob.controls.run ^ this.antbob.controls.caps)
-					this.changeState(STATE_RUNNING);
-				else
-					this.changeState(STATE_WALKING);
-				return;
-			}
-
-			if (this.antbob.controls.moveBackward) {
-				this.changeState(STATE_RUNNING_BACKWARDS);
-				return;
-			}
-
-			this.changeState(STATE_STANDING);
+			this.yieldState();
 			return;
 		}
 

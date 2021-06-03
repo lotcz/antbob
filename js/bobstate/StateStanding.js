@@ -33,33 +33,12 @@ export default class StateStanding extends BobState {
 	}
 
 	update(event) {
-		if (!this.antbob.onGround) {
-			this.changeState(STATE_FALLING);
+		if (this.isActionRequired() || this.antbob.controls.anyMovement()) {
+			this.yieldState();
 			return;
 		}
 
-		if (this.antbob.jumpTimeout <= 0 && this.antbob.controls.jump) {
-			this.changeState(STATE_JUMPING);
-			return;
-		}
-
-		if (this.antbob.controls.moveForward) {
-			if (this.antbob.controls.run ^ this.antbob.controls.caps)
-				this.changeState(STATE_RUNNING);
-			else
-				this.changeState(STATE_WALKING);
-			return;
-		}
-
-		if (this.antbob.controls.moveBackward) {
-			if (this.antbob.controls.run ^ this.antbob.controls.caps)
-				this.changeState(STATE_RUNNING_BACKWARDS);
-			else
-				this.changeState(STATE_WALKING_BACKWARDS);
-			return;
-		}
-
-		if (this.idleTimeout <= 0 ) {
+		if (this.idleTimeout <= 0 && !this.antbob.hasItemInBothHands()) {
 			this.changeState(STATE_IDLE);
 			return;
 		}

@@ -28,32 +28,13 @@ export default class StateWalkingBackwards extends BobState {
 	}
 
 	update(event) {
-
-		if (!this.antbob.onGround) {
-			this.antbob.changeState(STATE_FALLING);
+		if (this.isActionRequired()) {
+			this.yieldState();
 			return;
 		}
 
-		if (this.antbob.jumpTimeout <= 0 && this.antbob.controls.jump) {
-			this.changeState(STATE_JUMPING);
-			return;
-		}
-
-		if (!this.antbob.controls.anyMovement()) {
-			this.antbob.changeState(STATE_STANDING);
-			return;
-		}
-
-		if (!this.antbob.controls.moveBackward) {
-			if (this.antbob.controls.run ^ this.antbob.controls.caps)
-				this.changeState(STATE_RUNNING);
-			else
-				this.changeState(STATE_WALKING);
-			return;
-		}
-
-		if (this.antbob.controls.run ^ this.antbob.controls.caps) {
-			this.changeState(STATE_RUNNING_BACKWARDS);
+		if (this.antbob.controls.isRunning() || !this.antbob.controls.moveBackward) {
+			this.yieldState();
 			return;
 		}
 
