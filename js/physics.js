@@ -53,7 +53,22 @@ export default class PhysicsHelper {
 		// this disables collision detection for now
 		this.bobCollided = true;
 
+		this.cbContactPairResult = new Ammo.ConcreteContactResultCallback();
+		this.cbContactPairResult.hasContact = false;
+		this.cbContactPairResult.addSingleResult = function(cp, colObj0Wrap, partId0, index0, colObj1Wrap, partId1, index1){
+			let contactPoint = Ammo.wrapPointer( cp, Ammo.btManifoldPoint );
+			const distance = contactPoint.getDistance();
+			if( distance > 0 ) return;
+			this.hasContact = true;
+		}
+
 		if (player.userdata) this.processUserData(player.userdata);
+	}
+
+	bodiesCollide(b1, b2) {
+		this.cbContactPairResult.hasContact = false;
+		this.physicsWorld.contactPairTest(b1, b2, this.cbContactPairResult);
+		return this.cbContactPairResult.hasContact;
 	}
 
 	processUDataNode(udata) {
@@ -314,7 +329,6 @@ export default class PhysicsHelper {
 		const clothNumSegmentsY = clothHeight * 5;
 		const clothPos = new THREE.Vector3();
 		threeObject.getWorldPosition(clothPos);
-		//clothPos.add(new THREE.Vector3(0, - clothHeight/2, clothHeight/2));
 		const quaternion = new THREE.Quaternion();
 		threeObject.getWorldQuaternion(quaternion);
 		const clothCornerTopLeft = new Ammo.btVector3(-clothWidth/2, clothHeight/2, 0);
@@ -363,6 +377,14 @@ export default class PhysicsHelper {
 		this.clothBodies.push(cloth);
 
 		this.scene.add(cloth);
+	}
+
+	removeRigidBody(mesh) {
+		const objPhys = mesh.userData.physicsBody;
+		if (!objPhys) return;
+		this.scene.remove(mesh);
+		this.rigidBodies.splice(this.rigidBodies.indexOf(mesh), 1);
+		this.physicsWorld.removeRigidBody(objPhys);
 	}
 
 	update(event) {

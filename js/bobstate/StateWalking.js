@@ -1,15 +1,6 @@
 import {
 	BobState,
-	STATE_STANDING,
-	STATE_IDLE,
-	STATE_RUNNING,
-	STATE_JUMPING,
-	STATE_FALLING,
-	STATE_RUNNING_BACKWARDS,
 	ANIMATION_TRANSITION_DURATION,
-	STATE_WALKING,
-	STATE_WALKING_BACKWARDS,
-	FRICTION_STATIC,
 	FRICTION_MOVEMENT,
 	ZERO_VECTOR,
 	WALKING_SPEED
@@ -28,12 +19,7 @@ export default class StateWalking extends BobState {
 	}
 
 	update(event) {
-		if (this.isActionRequired()) {
-			this.yieldState();
-			return;
-		}
-
-		if (this.antbob.controls.isRunning() || !this.antbob.controls.moveForward) {
+		if (this.isActionRequired() || this.antbob.controls.isRunning() || !this.antbob.controls.moveForward) {
 			this.yieldState();
 			return;
 		}
@@ -47,8 +33,7 @@ export default class StateWalking extends BobState {
 			this.antbob.speed = WALKING_SPEED;
 		}
 
-		// PHYSICS MOVEMENT SIMULATION
-		var velocity = ZERO_VECTOR.clone();
+		const velocity = ZERO_VECTOR.clone();
 		velocity.add(this.antbob.direction);
 		velocity.multiplyScalar(this.antbob.speed);
 		this.antbob.body.setLinearVelocity(new Ammo.btVector3(velocity.x, velocity.y, velocity.z));

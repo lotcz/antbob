@@ -33,15 +33,15 @@ export class BobState {
 	}
 
 	isFallRequired() {
-		return (!this.antbob.onGround);
+		return !this.antbob.onGround;
 	}
 
 	isJumpRequired() {
-		return (this.antbob.controls.jump && this.antbob.jumpTimeout <= 0 && !this.antbob.hasItemInBothHands());
+		return this.antbob.controls.jump && this.antbob.jumpTimeout <= 0 && !this.antbob.hasItemInBothHands();
 	}
 
 	isThrowRequired() {
-		return (this.antbob.controls.fire && this.antbob.firing <= 0 && this.antbob.hasItemInHands());
+		return this.antbob.controls.fire && this.antbob.firing <= 0 && this.antbob.hasItemInHands();
 	}
 
 	isActionRequired() {

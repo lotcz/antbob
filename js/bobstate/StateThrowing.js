@@ -1,15 +1,7 @@
  import {
 	BobState,
-	STATE_STANDING,
-	STATE_IDLE,
-	STATE_RUNNING,
-	STATE_JUMPING,
-	STATE_FALLING,
-	STATE_RUNNING_BACKWARDS,
 	ANIMATION_TRANSITION_DURATION,
 	FRICTION_STATIC,
-	FRICTION_MOVEMENT,
-	ZERO_VECTOR
 } from './BobState.js';
 
 const HOLD_TIMEOUT = 800;
@@ -41,16 +33,15 @@ export default class StateThrowing extends BobState {
 
 		if (this.holdTimeout > 0) {
 			if (!this.antbob.controls.fire) {
-				this.antbob.firing = 0;
-				this.yieldState();
-				return;
+				const power = 1 - (this.holdTimeout / HOLD_TIMEOUT);
+				this.antbob.throwItem(this.slot, power);
 			}
 			this.holdTimeout -= event.delta;
 			return;
 		}
 
 		if (!this.fired) {
-			this.antbob.throwItem(this.slot);
+			this.antbob.throwItem(this.slot, 1);
 			this.fired = true;
 		}
 

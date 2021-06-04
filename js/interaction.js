@@ -17,12 +17,14 @@ export default class InteractionHelper {
 	findNearest() {
 		if (!this.antbob.dummy) return;
 
-		var min, mi;
-		for (var i = 0; i < this.userdata.userData.interaction.length; i++) {
-			var udata = this.userdata.userData.interaction[i];
+		let min, mi;
+		for (let i = 0; i < this.userdata.userData.interaction.length; i++) {
+			let udata = this.userdata.userData.interaction[i];
 			if (udata.node.visible) {
-				var distance = this.antbob.dummy.position.distanceToSquared(udata.node.localToWorld(new THREE.Vector3(0, 0, 0)));
-				var maxDistance = udata.data.maxDistance ? udata.data.maxDistance : DEFAULT_INTERACTION_DISTANCE;
+				const position = new THREE.Vector3();
+				udata.node.getWorldPosition(position);
+				const distance = this.antbob.dummy.position.distanceToSquared(position);
+				const maxDistance = udata.data.maxDistance ? udata.data.maxDistance : DEFAULT_INTERACTION_DISTANCE;
 				if ((min === undefined || distance < min) && (distance < maxDistance)) {
 					min = distance;
 					mi = i;
@@ -33,30 +35,34 @@ export default class InteractionHelper {
 	}
 
 	update(event) {
-		var deltaTime = event.delta;
+		const deltaTime = event.delta;
 
-		if (this.controls.interact && this.target !== null && this.target.data.interact && !this.justDropped) {
+		if (this.controls.interact && this.target !== null && this.target.data.interact) {
 			this.ui.hideInteraction();
 
-			if (this.target.data.interact.type == 'exit') {
-				this.ui.loadLevel(this.target.data.interact.level);
-				return;
-			}
-
-			if ((this.target.data.interact.type == 'talk')) {
-				this.ui.showTalkDialog(this.target.data);
-			} else if (this.target.data.interact.type == 'item') {
-				if (this.antbob.takeItem(this.target.data.interact)) {
-					let node = this.target.node;
-					node.parent.remove(node);
-					this.userdata.removeUserData('interaction', this.target);
-				}
-			} else if (this.target.data.interact.type == 'vehicle') {
-				this.antbob.setVehicle();
-			}
-
-			if (this.target.data.interact && this.target.data.interact.type == 'toggle') {
-				this.ui.story.toggle(this.target.data.interact.accomplishment);
+			switch (this.target.data.interact.type) {
+				case 'exit':
+					this.ui.loadLevel(this.target.data.interact.level);
+					break;
+				case 'talk':
+					this.ui.showTalkDialog(this.target.data);
+					break;
+				case 'item':
+					if (!this.justDropped) {
+						if (this.antbob.takeItem(this.target.data.interact)) {
+							let node = this.target.node;
+							node.parent.remove(node);
+							this.player.physics.removeRigidBody(node);
+							this.userdata.removeUserData('interaction', this.target);
+						}
+					}
+					break;
+				case 'vehicle':
+					this.antbob.setVehicle();
+					break;
+				case 'toggle':
+					this.ui.story.toggle(this.target.data.interact.accomplishment);
+					break;
 			}
 
 			this.target = null;
@@ -68,6 +74,7 @@ export default class InteractionHelper {
 			const slot = this.antbob.story.hasInventoryItem('leftHand') ? 'leftHand' : 'rightHand';
 			this.antbob.dropItem(slot);
 			this.justDropped = true;
+			return;
 		}
 
 		if (this.justDropped && !this.controls.interact) {
@@ -81,7 +88,7 @@ export default class InteractionHelper {
 				this.ui.hideInteraction();
 				return;
 			}
-			var nearest = this.findNearest(this.userdata);
+			const nearest = this.findNearest(this.userdata);
 			if (nearest) {
 				if (nearest !== this.target) {
 					this.target = nearest;

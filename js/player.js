@@ -80,8 +80,8 @@ export default class Player {
 
 		var scriptWrapResult = JSON.stringify( scriptWrapResultObj ).replace( /\"/g, '' );
 
-		for ( var uuid in json.scripts ) {
-			var object = this.scene.getObjectByProperty( 'uuid', uuid, true );
+		for (let uuid in json.scripts) {
+			const object = this.scene.getObjectByProperty( 'uuid', uuid, true );
 			if ( object === undefined ) {
 				console.warn( 'APP.Player: Script without object.', uuid );
 				continue;
@@ -109,24 +109,18 @@ export default class Player {
 
 		const tasks = [];
 
-		// USERDATA
 		this.userdata = new UserdataHelper(this.scene);
 
-		// RESOURCES
 		this.resources = new ResourcesHelper(this);
 		await this.resources.processUserData(this.userdata.userData.load);
 
-		// STAIRS
-		var stairs = new StairsHelper(this);
+		const stairs = new StairsHelper(this);
 
-		// ROOTS
-		var roots = new RootsHelper(this);
+		const roots = new RootsHelper(this);
 
-		// PHYSICS
 		this.physics = new PhysicsHelper(this);
 		this.events.update.push((e) => this.physics.update(e));
 
-		// BOB
 		this.antbob = new AntBob(this);
 		this.events.update.push((e) => this.antbob.update(e));
 		tasks.push(this.antbob.load());
@@ -136,7 +130,6 @@ export default class Player {
 
 		await Promise.all(tasks);
 
-		// SOUND
 		//this.sound = new SoundHelper('sound/forest_1.mp3');
 		//this.sound.play();
 

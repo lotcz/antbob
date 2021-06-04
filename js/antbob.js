@@ -61,7 +61,6 @@ export default class AntBob {
 		this.jumpTimeout = 0;
 		this.state = null;
 		this.speed = 0;
-		this.gun = null;
 		this.firing = 0;
 		this.collisionRequestSent = false;
 
@@ -79,7 +78,7 @@ export default class AntBob {
 			this.direction.applyQuaternion(entry.quaternion);
 		}
 
-		this.animation = new AnimationHelper(this.player, 'models/antbob.glb?v=1');
+		this.animation = new AnimationHelper(this.player, 'models/antbob.glb');
 
 		// STATES
 		this.states = []
@@ -193,10 +192,11 @@ export default class AntBob {
 			this.unloadItem(slot);
 	}
 
-	changeState(state_name) {
+	changeState(state_name, event) {
 		if (this.state) this.state.deactivate();
 		this.state = this.states[state_name];
 		this.state.activate();
+		if (event) this.state.update(event);
 	}
 
 	update(event) {
@@ -266,56 +266,61 @@ export default class AntBob {
 	dropItem(slot) {
 		const item = this.story.removeInventoryItem(slot);
 		if (item) {
-			const mesh = this.unloadItem(slot);
-			const newMesh = mesh.clone();
-			const pos = this.dummy.position.clone();
-			pos.add(this.direction.clone().multiplyScalar(0.5));
-			newMesh.position.copy(pos);
-			this.player.scene.add(newMesh);
-			this.physics.processMesh(newMesh);
-			this.player.userdata.extractUserData(newMesh);
-			return newMesh;
+			const boneName = SLOT_BONES[slot];
+			const bone = this.model.getObjectByName(boneName);
+			if (bone && bone.userData && bone.userData.itemMesh)
+			{
+				const mesh = bone.userData.realItemMesh || bone.userData.itemMesh;
+				const position = new THREE.Vector3();
+				mesh.getWorldPosition(position);
+				const quaternion = new THREE.Quaternion();
+				mesh.getWorldQuaternion(quaternion);
+
+				bone.remove(bone.userData.itemMesh);
+				bone.userData.realItemMesh = null;
+				bone.userData.itemMesh = null;
+
+				const newMesh = mesh.clone();
+				newMesh.position.copy(position);
+				newMesh.quaternion.copy(quaternion);
+
+				this.player.scene.add(newMesh);
+				this.physics.processMesh(newMesh);
+
+				const body = newMesh.userData.physicsBody;
+				const step = this.direction.clone().multiplyScalar(0.1);
+				const transform = new Ammo.btTransform();
+				transform.setIdentity();
+				transform.setOrigin(new Ammo.btVector3(position.x, position.y, position.z));
+				transform.setRotation(new Ammo.btQuaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w));
+
+				while (this.physics.bodiesCollide(body, this.body)) {
+					console.log('step');
+					position.add(step);
+					transform.setOrigin(new Ammo.btVector3(position.x, position.y, position.z));
+					body.setWorldTransform(transform);
+				}
+
+				this.player.userdata.extractUserData(newMesh);
+				return newMesh;
+			}
 		}
 	}
 
-	throwItem(slot) {
-		const item = this.story.removeInventoryItem(slot);
-		if (item) {
-			const mesh = this.unloadItem(slot);
-			const newMesh = mesh.clone();
-			const pos = this.dummy.position.clone();
-			pos.add(this.direction.clone().multiplyScalar(0.5));
-			pos.add(Y_AXIS.clone().multiplyScalar(0.25));
-			newMesh.position.copy(pos);
-			this.player.scene.add(newMesh);
-			this.physics.processMesh(newMesh);
-			this.player.userdata.extractUserData(newMesh);
+	throwItem(slot, power) {
+		const newMesh = this.dropItem(slot);
+		if (newMesh) {
 			const bulletBody = newMesh.userData.physicsBody;
 			const bulletVector = this.direction.clone();
 			bulletVector.add(Y_AXIS);
-			bulletVector.multiplyScalar(3);
+			bulletVector.multiplyScalar(3 * power);
 			bulletBody.setLinearVelocity(new Ammo.btVector3(bulletVector.x, bulletVector.y, bulletVector.z));
 			return newMesh;
 		}
 	}
 
-	unloadItem(slot) {
-		const boneName = SLOT_BONES[slot];
-		const bone = this.model.getObjectByName(boneName);
-		if (bone && bone.userData && bone.userData.itemMesh)
-		{
-			bone.remove(bone.userData.itemMesh);
-			const mesh = bone.userData.realItemMesh || bone.userData.itemMesh;
-			bone.userData.realItemMesh = null;
-			bone.userData.itemMesh = null;
-			return mesh;
-		}
-	}
-
 	async loadItem(slot, data) {
-		this.unloadItem(slot);
-
-		if (!data) return;
+		if (!(this.story.hasInventoryItem(slot) && data)) return;
 
 		const boneName = SLOT_BONES[slot];
 		const bone = this.model.getObjectByName(boneName);
@@ -345,6 +350,19 @@ export default class AntBob {
 		bone.userData['itemMesh'] = wrapper;
 	}
 
+	unloadItem(slot) {
+		const boneName = SLOT_BONES[slot];
+		const bone = this.model.getObjectByName(boneName);
+		if (bone && bone.userData && bone.userData.itemMesh)
+		{
+			bone.remove(bone.userData.itemMesh);
+			const mesh = bone.userData.realItemMesh || bone.userData.itemMesh;
+			bone.userData.realItemMesh = null;
+			bone.userData.itemMesh = null;
+			return mesh;
+		}
+	}
+	
 	takeItem(data) {
 		let slot = data.slot;
 		slot = this.story.addInventoryItem(slot, data);

@@ -1,20 +1,8 @@
 import {
 	BobState,
-	STATE_STANDING,
 	STATE_IDLE,
-	STATE_RUNNING,
-	STATE_JUMPING,
-	STATE_FALLING,
-	STATE_RUNNING_BACKWARDS,
-	STATE_WALKING,
-	STATE_WALKING_BACKWARDS,
 	ANIMATION_TRANSITION_DURATION,
-	FRICTION_STATIC,
-	FRICTION_MOVEMENT,
-	ZERO_VECTOR,
-	X_AXIS,
-	Y_AXIS,
-	Z_AXIS
+	FRICTION_STATIC
 } from './BobState.js';
 
 const IDLE_TIMEOUT = 3000;
@@ -28,7 +16,6 @@ export default class StateStanding extends BobState {
 		this.antbob.body.setFriction(FRICTION_STATIC);
 		this.antbob.body.setRollingFriction(10);
 		this.antbob.body.setLinearVelocity(new Ammo.btVector3(0, 0, 0));
-		//athis.antbob.body.setAngularVelocity(new Ammo.btVector3(0, 0, 0));
 		this.antbob.speed = 0;
 	}
 
@@ -44,6 +31,7 @@ export default class StateStanding extends BobState {
 		}
 
 		this.idleTimeout -= event.delta;
+		this.antbob.body.setLinearVelocity(new Ammo.btVector3(0, 0, 0));
 	}
 
 }
