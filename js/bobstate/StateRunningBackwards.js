@@ -17,7 +17,7 @@ export default class StateRunningBackwards extends BobState {
 	}
 
 	update(event) {
-		if (this.isActionRequired() || (!(this.antbob.controls.isRunning() && this.antbob.controls.moveBackward))) {
+		if (this.isActionRequired() || (!(this.antbob.controls.isRunning() && this.antbob.controls.moveBackward)) || this.antbob.hasItemInBothHands()) {
 			this.yieldState();
 			return;
 		}

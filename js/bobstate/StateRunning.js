@@ -17,7 +17,7 @@ export default class StateRunning extends BobState {
 	}
 
 	update(event) {
-		if (this.isActionRequired() || (!(this.antbob.controls.isRunning() && this.antbob.controls.moveForward))) {
+		if (this.isActionRequired() || (!(this.antbob.controls.isRunning() && this.antbob.controls.moveForward)) || this.antbob.hasItemInBothHands()) {
 			this.yieldState();
 			return;
 		}

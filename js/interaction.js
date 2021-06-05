@@ -38,36 +38,46 @@ export default class InteractionHelper {
 		const deltaTime = event.delta;
 
 		if (this.controls.interact && this.target !== null && this.target.data.interact) {
-			this.ui.hideInteraction();
+			let didSomething = false;
 
 			switch (this.target.data.interact.type) {
 				case 'exit':
 					this.ui.loadLevel(this.target.data.interact.level);
+					didSomething = true;
 					break;
 				case 'talk':
+					this.ui.hideInteraction();
 					this.ui.showTalkDialog(this.target.data);
+					didSomething = true;
 					break;
 				case 'item':
 					if (!this.justDropped) {
 						if (this.antbob.takeItem(this.target.data.interact)) {
+							this.ui.hideInteraction();
 							let node = this.target.node;
 							node.parent.remove(node);
 							this.player.physics.removeRigidBody(node);
 							this.userdata.removeUserData('interaction', this.target);
+							didSomething = true;
 						}
 					}
 					break;
 				case 'vehicle':
+					this.ui.hideInteraction();
 					this.antbob.setVehicle();
+					didSomething = true;
 					break;
 				case 'toggle':
 					this.ui.story.toggle(this.target.data.interact.accomplishment);
+					didSomething = true;
 					break;
 			}
 
-			this.target = null;
-			this.controls.interact = false;
-			return;
+			if (didSomething) {
+				this.target = null;
+				this.controls.interact = false;
+				return;
+			}
 		}
 
 		if (this.controls.interact && this.antbob.hasItemInHands()) {

@@ -32,11 +32,13 @@ export default class StateThrowing extends BobState {
 		}
 
 		if (this.holdTimeout > 0) {
+			this.holdTimeout -= event.delta;
 			if (!this.antbob.controls.fire) {
 				const power = 1 - (this.holdTimeout / HOLD_TIMEOUT);
 				this.antbob.throwItem(this.slot, power);
+				this.antbob.firing = 0;
+				this.yieldState();
 			}
-			this.holdTimeout -= event.delta;
 			return;
 		}
 
@@ -45,7 +47,7 @@ export default class StateThrowing extends BobState {
 			this.fired = true;
 		}
 
-		if (this.antbob.controls.anyMovement()) {
+		if (this.antbob.controls.anyMovement() || this.antbob.controls.anyTurning()) {
 			this.yieldState();
 			return;
 		}

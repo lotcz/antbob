@@ -13,13 +13,13 @@ export default class StateWalking extends BobState {
 	activate() {
 		this.bothHands = this.antbob.hasItemInBothHands();
 		this.antbob.animation.activateAction(this.bothHands ? 'WalkingHolding' : 'Walking', ANIMATION_TRANSITION_DURATION * 2, false);
-		this.antbob.animation.speed = 1.2;
+		this.antbob.animation.speed = this.bothHands ? 1.8 : 1.2;
 		this.antbob.body.setFriction(FRICTION_MOVEMENT);
 		this.antbob.body.setRollingFriction(0);
 	}
 
 	update(event) {
-		if (this.isActionRequired() || this.antbob.controls.isRunning() || !this.antbob.controls.moveForward || this.bothHands != this.antbob.hasItemInBothHands()) {
+		if (this.isActionRequired() || (this.antbob.controls.isRunning() && !this.bothHands) || !this.antbob.controls.moveForward || this.bothHands != this.antbob.hasItemInBothHands()) {
 			this.yieldState();
 			return;
 		}
