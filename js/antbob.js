@@ -295,7 +295,6 @@ export default class AntBob {
 				transform.setRotation(new Ammo.btQuaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w));
 
 				while (this.physics.bodiesCollide(body, this.body)) {
-					console.log('step');
 					position.add(step);
 					transform.setOrigin(new Ammo.btVector3(position.x, position.y, position.z));
 					body.setWorldTransform(transform);
@@ -362,7 +361,7 @@ export default class AntBob {
 			return mesh;
 		}
 	}
-	
+
 	takeItem(data) {
 		let slot = data.slot;
 		slot = this.story.addInventoryItem(slot, data);

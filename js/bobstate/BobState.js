@@ -69,7 +69,7 @@ export class BobState {
 		}
 
 		if (this.antbob.controls.moveForward) {
-			if (this.antbob.controls.isRunning())
+			if (this.antbob.controls.isRunning() && !this.antbob.hasItemInBothHands())
 				this.changeState(STATE_RUNNING);
 			else
 				this.changeState(STATE_WALKING);
@@ -77,7 +77,7 @@ export class BobState {
 		}
 
 		if (this.antbob.controls.moveBackward) {
-			if (this.antbob.controls.isRunning())
+			if (this.antbob.controls.isRunning() && !this.antbob.hasItemInBothHands())
 				this.changeState(STATE_RUNNING_BACKWARDS);
 			else
 				this.changeState(STATE_WALKING_BACKWARDS);
