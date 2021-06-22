@@ -28,8 +28,8 @@ export class BobState {
 		this.antbob = bob;
 	}
 
-	changeState(state_name) {
-		this.antbob.changeState(state_name);
+	changeState(state) {
+		this.antbob.changeState(state);
 	}
 
 	isFallRequired() {
@@ -50,7 +50,7 @@ export class BobState {
 
 	/***
 	 * Called when state relieves itself.
-	 * Selects default state.
+	 * Selects default state if no action is required.
 	 */
 	yieldState() {
 		if (this.isFallRequired()) {

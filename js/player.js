@@ -3,7 +3,7 @@ import PhysicsHelper from './physics.js';
 import StairsHelper from './stairs.js';
 import UserdataHelper from './userdata.js';
 import RootsHelper from './roots.js';
-import PucellaHelper from './pucellas.js';
+import PucellaHelper from './pucella/pucellas.js';
 import SoundHelper from './sound.js';
 import InteractionHelper from './interaction.js';
 import AntBob from './antbob.js';

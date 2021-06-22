@@ -23,7 +23,7 @@ export default class InteractionHelper {
 			if (udata.node.visible) {
 				const position = new THREE.Vector3();
 				udata.node.getWorldPosition(position);
-				const distance = this.antbob.dummy.position.distanceToSquared(position);
+				const distance = this.antbob.distanceTo(position);
 				const maxDistance = udata.data.maxDistance ? udata.data.maxDistance : DEFAULT_INTERACTION_DISTANCE;
 				if ((min === undefined || distance < min) && (distance < maxDistance)) {
 					min = distance;

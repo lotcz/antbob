@@ -182,6 +182,10 @@ export default class AntBob {
 		this.loaded = true;
 	}
 
+	distanceTo(position) {
+		return this.dummy.position.distanceToSquared(position);
+	}
+
 	updateInventorySlot(slot) {
 		if (this.story.hasInventoryItem(slot))
 			this.loadItem(slot, this.story.state.inventory[slot]);
