@@ -4,7 +4,7 @@
 	FRICTION_STATIC,
 } from './BobState.js';
 
-const HOLD_TIMEOUT = 800;
+const HOLD_TIMEOUT = 700;
 const FIRE_TIMEOUT = 2000;
 
 export default class StateThrowing extends BobState {
@@ -16,6 +16,7 @@ export default class StateThrowing extends BobState {
 			return;
 		}
 
+		this.antbob.animation.speed = 1;
 		this.antbob.animation.activateAction(this.slot === 'leftHand' ? 'ThrowLeft' : 'Throw', ANIMATION_TRANSITION_DURATION, false);
 		this.antbob.body.setFriction(FRICTION_STATIC);
 		this.antbob.body.setRollingFriction(0);
@@ -43,11 +44,12 @@ export default class StateThrowing extends BobState {
 		}
 
 		if (!this.fired) {
-			this.antbob.throwItem(this.slot, 1);
+			this.antbob.throwItem(this.slot, 1.7);
 			this.fired = true;
 		}
 
 		if (this.antbob.controls.anyMovement() || this.antbob.controls.anyTurning()) {
+			this.antbob.firing = 0;
 			this.yieldState();
 			return;
 		}
@@ -57,6 +59,7 @@ export default class StateThrowing extends BobState {
 			return;
 		}
 
+		this.antbob.firing = 0;
 		this.yieldState();
 	}
 

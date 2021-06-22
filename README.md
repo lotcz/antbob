@@ -120,6 +120,15 @@ Define in separate JSON file:
 }
 ```
 
+Load:
+```json
+{
+  "load": {
+    "model": "rubik"
+  }
+}
+```
+
 ### Editor scripts
 
 Spot light:

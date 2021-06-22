@@ -9,7 +9,8 @@ export default class UserdataHelper {
 			roots: [],
 			physics: [],
 			story: [],
-			interaction: []
+			interaction: [],
+			pucella: []
 		};
 		this.extractUserData(node);
 	}

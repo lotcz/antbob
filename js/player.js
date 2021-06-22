@@ -3,6 +3,7 @@ import PhysicsHelper from './physics.js';
 import StairsHelper from './stairs.js';
 import UserdataHelper from './userdata.js';
 import RootsHelper from './roots.js';
+import PucellaHelper from './pucellas.js';
 import SoundHelper from './sound.js';
 import InteractionHelper from './interaction.js';
 import AntBob from './antbob.js';
@@ -125,6 +126,10 @@ export default class Player {
 		this.events.update.push((e) => this.antbob.update(e));
 		tasks.push(this.antbob.load());
 
+		this.pucellas = new PucellaHelper(this);
+		this.events.update.push((e) => this.pucellas.update(e));
+		tasks.push(this.pucellas.load());
+
 		this.interaction = new InteractionHelper(this, this.controls, this.antbob, this.ui);
 		this.events.update.push((e) => this.interaction.update(e));
 
@@ -171,7 +176,7 @@ export default class Player {
 	animate() {
 		if (!this.playing) return;
 
-		var time = performance.now();
+		const time = performance.now();
 
 		// EVENTS
 		try {
@@ -194,21 +199,21 @@ export default class Player {
 		if (!this.renderer) return;
 		this.renderer.render(this.scene, this.camera);
 		this.prevTime = time;
+
+		requestAnimationFrame(this.onAnimate);
 	}
 
 	play() {
-		this.prevTime = performance.now();
 		this.dispatch(this.events.start, arguments);
 		if (this.onAnimate === null) {
 			this.onAnimate = () => this.animate();
-			this.renderer.setAnimationLoop(this.onAnimate);
 		}
-		//this.renderer.setAnimationLoop(this.onAnimate);
 		this.playing = true;
+		this.prevTime = performance.now();
+		this.animate();
 	}
 
 	stop() {
-		//this.renderer.setAnimationLoop(null);
 		this.playing = false;
 		this.dispatch(this.events.stop, arguments);
 	}

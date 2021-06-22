@@ -135,12 +135,9 @@ export default class AntBob {
 	}
 
 	async load() {
-		await this.animation.load();
-		const model = this.animation.model;
-
-		this.processMaterials(model);
-		this.model = model;
-		this.group.add(model);
+		this.model = await this.animation.load();
+		this.processMaterials(this.model);
+		this.group.add(this.model);
 
 		// BOX
 		//var shape = new Ammo.btBoxShape(new Ammo.btVector3(DUMMY_BODY_SIZE / 2 , DUMMY_BODY_SIZE, DUMMY_BODY_SIZE / 2));
@@ -192,9 +189,9 @@ export default class AntBob {
 			this.unloadItem(slot);
 	}
 
-	changeState(state_name, event) {
+	changeState(state, event) {
 		if (this.state) this.state.deactivate();
-		this.state = this.states[state_name];
+		this.state = this.states[state];
 		this.state.activate();
 		if (event) this.state.update(event);
 	}
@@ -229,7 +226,6 @@ export default class AntBob {
 
 		// MODEL ORIENTATION
 		this.group.lookAt(this.group.position.clone().add(this.direction));
-		//this.model.quaternion.set(this.dummy.quaternion.x, 0, this.dummy.quaternion.z, this.dummy.quaternion.w);
 
 		// MODEL ANIMATION
 		this.animation.update(event);

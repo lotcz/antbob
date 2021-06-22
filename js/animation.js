@@ -21,7 +21,7 @@ export default class AnimationHelper {
 		const gltf = await promise;
 
 		this.model = gltf.scene;
-		this.player.scene.add(this.model);
+		//this.player.scene.add(this.model);
 
 		this.model.traverse( function ( object ) {
 			if (object.isMesh) {
@@ -38,11 +38,12 @@ export default class AnimationHelper {
 			let animation = animations[i];
 			let action = this.mixer.clipAction(animation);
 			this.actions[animation.name] = action;
-			this.setWeight(action, 0);
 			action.play();
 			if (!this.currentAction) {
 				this.currentAction = action;
 				this.setWeight(this.currentAction, 1);
+			} else {
+				this.setWeight(action, 0);
 			}
 		}
 
@@ -51,26 +52,16 @@ export default class AnimationHelper {
 	}
 
 	update(event) {
-		this.mixer.update(this.speed * event.delta / 1000);
-	}
-
-	modifyTimeScale(speed) {
-		this.mixer.timeScale = speed;
-	}
-
-	playBackwards() {
-		this.mixer.timeScale = -Math.abs(this.mixer.timeScale);
-	}
-
-	playForward() {
-		this.mixer.timeScale = Math.abs(this.mixer.timeScale);
+		this.mixer.update(this.speed * (event.delta / 1000));
 	}
 
 	activateAction(name, duration, synchronize) {
 		const action = this.actions[name];
 
-		if (this.currentAction === action)
+		if (this.currentAction === action) {
+			this.currentAction.reset();
 			return;
+		}
 
 		if (synchronize)
 			this.synchronizeCrossFade(this.currentAction, action, duration);
@@ -93,8 +84,9 @@ export default class AnimationHelper {
 		//console.log(endAction._clip.name);
 
 		// Not only the start action, but also the end action must get a weight of 1 before fading
-		// (concerning the start action this is already guaranteed in this place)
-		var durationSecs = duration / 1000;
+		if (startAction) this.setWeight(startAction, 1);
+
+		const durationSecs = duration / 1000;
 
 		if (endAction) {
 			this.setWeight(endAction, 1);
@@ -107,7 +99,7 @@ export default class AnimationHelper {
 				endAction.fadeIn(durationSecs);
 			}
 			this.currentAction = endAction;
-		} else {
+		} else if (startAction) {
 			startAction.fadeOut(durationSecs);
 		}
 	}
